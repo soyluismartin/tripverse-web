@@ -1,31 +1,8 @@
-/**
- * Wrangler único — https://opennext.js.org/cloudflare/get-started
- * Salida OpenNext: `.open-next/` (`worker.js`, `assets/`).
- * `pages_build_output_dir`: Cloudflare Pages (Git) cuando este archivo es fuente de verdad.
- */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "tripverse-web",
 	"pages_build_output_dir": ".open-next",
 	"main": ".open-next/worker.js",
 	"compatibility_date": "2024-09-23",
-	"compatibility_flags": ["nodejs_compat"],
-	"assets": {
-		"binding": "ASSETS",
-		"directory": ".open-next/assets"
-	},
-	"services": [
-		{
-			"binding": "WORKER_SELF_REFERENCE",
-			"service": "tripverse-web"
-		}
-	],
-	"images": {
-		// https://opennext.js.org/cloudflare/howtos/image
-		"binding": "IMAGES"
-	},
-	"observability": {
-		"enabled": true
-	},
-	"upload_source_maps": true
+	"compatibility_flags": ["nodejs_compat"]
 }
