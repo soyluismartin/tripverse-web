@@ -37,6 +37,18 @@ npm run deploy
 # or similar package manager command
 ```
 
+### Cloudflare Pages / Workers (dashboard build settings)
+
+Use **`@opennextjs/cloudflare`** (OpenNext). Do **not** set the build command to the deprecated **`@cloudflare/next-on-pages`** adapter.
+
+| Setting | Value |
+| --- | --- |
+| **Build command** | `npx @opennextjs/cloudflare build` or `npm run pages:build` |
+| **Root directory** | Repository root (where `package.json` lives) |
+| **Wrangler config** | This repo uses `wrangler.jsonc` — `main` and `assets` point at `.open-next/` produced by the OpenNext build |
+
+After `npm ci`, the same build runs locally as `npm run pages:build`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

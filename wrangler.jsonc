@@ -1,10 +1,14 @@
 /**
- * For more details on how to configure Wrangler, refer to:
- * https://developers.cloudflare.com/workers/wrangler/configuration/
- */
-/**
- * For more details on how to configure Wrangler, refer to:
- * https://developers.cloudflare.com/workers/wrangler/configuration/
+ * Tripverse deploys with @opennextjs/cloudflare (OpenNext).
+ * Do not use the deprecated @cloudflare/next-on-pages adapter.
+ *
+ * CI / Cloudflare Pages build command must run the OpenNext CLI, for example:
+ *   npx @opennextjs/cloudflare build
+ * (requires Node deps installed first: npm ci)
+ *
+ * Paths below match OpenNext output — see https://opennext.js.org/cloudflare/get-started
+ *
+ * Wrangler reference: https://developers.cloudflare.com/workers/wrangler/configuration/
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
