@@ -3,18 +3,18 @@
 import { useEffect, useRef, useState, ReactNode } from 'react'
 import Image from 'next/image'
 import { IMGS } from '@/lib/images'
-
-// ── Design tokens ─────────────────────────────────────────────────────────────
-const BG    = 'var(--color-bg)'
-const CARD  = 'var(--color-surface)'
-const SEC   = 'var(--color-surface-2)'
-const DARK  = 'var(--color-text)'
-const MUTED = 'var(--color-muted)'
-const BDL   = 'var(--color-border)'
-const BDM   = 'var(--color-border-md)'
-const BLUE  = 'var(--color-accent)'
-const BLBG  = 'var(--color-accent-bg)'
-const SHADOW = 'var(--shadow-card)'
+import {
+	BG,
+	BLBG,
+	BLUE,
+	BDM,
+	BDL,
+	CARD,
+	DARK,
+	MUTED,
+	SEC,
+	SHADOW,
+} from '@/lib/landing-theme'
 
 // ── Scroll reveal ─────────────────────────────────────────────────────────────
 function useReveal(t = 0.1) {

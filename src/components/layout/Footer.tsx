@@ -18,7 +18,7 @@ export default function Footer() {
         {/* Brand */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontSize: 13, color: '#8E8E93', fontWeight: 500 }}>
-            Tripverse · 2025
+            Tripverse · 2026
           </span>
         </div>
 

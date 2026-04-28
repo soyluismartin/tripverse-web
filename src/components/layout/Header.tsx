@@ -4,7 +4,7 @@ const NAV_LINKS = [
   { label: 'Features',     href: '#features' },
   { label: 'Routes',       href: '#destinations' },
   { label: 'Reviews',      href: '#testimonials' },
-  { label: 'Capabilities', href: '#capabilities' },
+  { label: 'Trips', href: '/trips' },
 ]
 
 function AppStoreButton() {
@@ -94,6 +94,7 @@ export default function Header() {
         {/* App Store button */}
         <AppStoreButton />
       </div>
+      <meta name="google-site-verification" content="_FPG7YCCrK5-egKPI7K3yLrnOWcOkgTr0opbtVqjDEU" />
     </header>
   )
 }
