@@ -1,6 +1,10 @@
-# Minimal Pages hint: tells Cloudflare Pages where OpenNext static assets land after
-# `npx @opennextjs/cloudflare build`. Full Worker/asset bindings stay in `wrangler.jsonc`.
+# Cloudflare Pages: directorio de salida = carpeta completa `.open-next` (assets + Worker).
+# Advanced Mode usa `_worker.js` en esa carpeta; OpenNext escribe `worker.js` → `scripts/cf-pages-prep.mjs` lo copia al build de Pages.
+# @see https://developers.cloudflare.com/pages/functions/advanced-mode/
+# @see https://developers.cloudflare.com/pages/functions/wrangler-configuration/
+#
+# Despliegue recomendado por OpenNext: Cloudflare Workers (`npm run deploy` / `wrangler.jsonc`), no Pages.
 name = "tripverse-web"
-pages_build_output_dir = ".open-next/assets"
+pages_build_output_dir = ".open-next"
 compatibility_date = "2024-09-23"
-compatibility_flags = ["nodejs_compat"]
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]

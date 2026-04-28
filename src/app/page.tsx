@@ -451,7 +451,7 @@ function Hero() {
   }
 
   return (
-    <section id="hero" className="hero-section" style={{ background: CARD, padding: '118px 24px 92px', overflow: 'hidden' }}>
+    <section id="hero" className="hero-section" style={{ background: CARD, overflow: 'hidden' }}>
       <div className="hero-inner" style={{ maxWidth: 1180, margin: '0 auto', textAlign: 'left' }}>
         <Reveal className="hero-grid">
           <div className="hero-copy">

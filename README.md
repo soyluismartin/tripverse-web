@@ -43,11 +43,18 @@ Use **`@opennextjs/cloudflare`** (OpenNext). Do **not** set the build command to
 
 | Setting | Value |
 | --- | --- |
-| **Build command** | `npx @opennextjs/cloudflare build` or `npm run pages:build` |
+| **Build command** | **`npm run pages:build`** (runs OpenNext build + copia `worker.js` → `_worker.js` para [Advanced Mode](https://developers.cloudflare.com/pages/functions/advanced-mode/)) |
 | **Root directory** | Repository root (where `package.json` lives) |
-| **Wrangler config** | This repo uses `wrangler.jsonc` — `main` and `assets` point at `.open-next/` produced by the OpenNext build |
+| **Build output directory** | Leave empty / default if Pages lee **`wrangler.toml`**: `pages_build_output_dir = ".open-next"` |
 
-After `npm ci`, the same build runs locally as `npm run pages:build`.
+**Archivos:**
+
+- **`wrangler.toml`** — solo lo que Pages necesita (`pages_build_output_dir`, compat flags). Salida completa `.open-next/` (no solo `assets`).
+- **`wrangler.jsonc`** — configuración completa del Worker (`main`, `assets`, bindings) para **`npm run deploy`** / `wrangler dev` (Workers).
+
+La documentación oficial de OpenNext orienta el deploy a **Cloudflare Workers** (`wrangler deploy`). Pages es viable copiando el Worker como **`_worker.js`** dentro de `.open-next/` (lo hace `scripts/cf-pages-prep.mjs`).
+
+After `npm ci`, prueba localmente: `npm run pages:build`.
 
 ## Learn More
 

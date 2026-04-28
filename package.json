@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "pages:build": "npx @opennextjs/cloudflare build",
+    "pages:build": "npx @opennextjs/cloudflare build && node scripts/cf-pages-prep.mjs",
     "deploy": "npx @opennextjs/cloudflare build && npx @opennextjs/cloudflare deploy",
     "upload": "npx @opennextjs/cloudflare build && npx @opennextjs/cloudflare upload",
     "preview": "npx @opennextjs/cloudflare build && npx @opennextjs/cloudflare preview",
