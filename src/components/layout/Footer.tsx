@@ -1,6 +1,9 @@
 'use client'
 
-const FOOTER_LINKS = ['Privacy', 'Terms', 'Contact']
+const FOOTER_LINKS = [
+  { label: 'Privacy', href: '/privacy' },
+  { label: 'Support', href: '/support' },
+]
 
 export default function Footer() {
   return (
@@ -24,10 +27,10 @@ export default function Footer() {
 
         {/* Links */}
         <nav className="flex gap-6">
-          {FOOTER_LINKS.map(label => (
+          {FOOTER_LINKS.map(link => (
             <a
-              key={label}
-              href="#"
+              key={link.label}
+              href={link.href}
               style={{
                 fontSize:   13,
                 color:      '#8E8E93',
@@ -36,7 +39,7 @@ export default function Footer() {
               onMouseEnter={e => (e.currentTarget.style.color = '#0A0A0A')}
               onMouseLeave={e => (e.currentTarget.style.color = '#8E8E93')}
             >
-              {label}
+              {link.label}
             </a>
           ))}
         </nav>

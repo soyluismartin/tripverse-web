@@ -1296,6 +1296,19 @@ body:has(.trip-detail-page) {
 	padding-left: 1.35rem;
 }
 
+/* Legal pages: subir legibilidad de listas (evitar tono demasiado tenue). */
+.legal-content .trip-detail-bullet-list,
+.legal-content .trip-detail-numbered-list {
+	color: var(--color-text);
+	font-size: 16px;
+	line-height: 1.7;
+}
+
+.legal-content .trip-detail-bullet-list li::marker,
+.legal-content .trip-detail-numbered-list li::marker {
+	color: color-mix(in srgb, var(--color-text) 72%, transparent);
+}
+
 .trip-detail-bullet-list li,
 .trip-detail-numbered-list li {
 	margin-bottom: 8px;
@@ -3074,3 +3087,4 @@ button.transport-card.transport-card--clickable {
 .activity-card--clickable:focus-visible {
 	box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 35%, transparent);
 }
+
