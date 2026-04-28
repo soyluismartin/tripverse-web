@@ -738,12 +738,12 @@ body:has(.trip-detail-page) {
 	overflow-x: clip;
 	overflow-y: visible;
 	padding-bottom: clamp(44px, 6vw, 72px);
-	padding-top: calc(var(--site-header-h) + clamp(72px, 14vmin, 128px));
+	padding-top: calc(var(--site-header-h) + clamp(16px, 4vmin, 32px));
 }
 
 /* Capa extra entre el borde del bloque blanco y el titular (evita que el título roce el blur). */
 .trip-detail-stripe--marketing-hero .trip-detail-landing-inner {
-	padding-top: clamp(28px, 7vmin, 56px);
+	padding-top: clamp(8px, 2.6vmin, 18px);
 }
 
 /* CTA: mismo ritmo que las demás franjas grises */
@@ -2677,11 +2677,11 @@ button.cost-city-header--toggle:focus-visible {
 
 	.trip-detail-stripe--marketing-hero {
 		padding-bottom: clamp(28px, 8vw, 48px);
-		padding-top: calc(var(--site-header-h) + clamp(64px, 16vmin, 112px));
+		padding-top: calc(var(--site-header-h) + clamp(10px, 4vmin, 20px));
 	}
 
 	.trip-detail-stripe--marketing-hero .trip-detail-landing-inner {
-		padding-top: clamp(24px, 9vmin, 48px);
+		padding-top: clamp(6px, 2.8vmin, 12px);
 	}
 
 	.trip-detail-shell {

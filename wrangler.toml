@@ -1,10 +1,28 @@
+# Cloudflare Workers — OpenNext (https://opennext.js.org/cloudflare/get-started)
+# Deploy: npm run deploy (usa Wrangler 4.x del proyecto)
+
 name = "tripverse-web"
-pages_build_output_dir = ".open-next"
-# OpenNext recomienda fecha ≥ 2024-09-23 y flags nodejs_compat + global_fetch (plantilla oficial).
+main = ".open-next/worker.js"
+
 compatibility_date = "2024-12-30"
 compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
+
+[assets]
+binding = "ASSETS"
+directory = ".open-next/assets"
+
+# OpenNext incremental/cache self-reference (nombre = campo `name` arriba)
+[[services]]
+binding = "WORKER_SELF_REFERENCE"
+service = "tripverse-web"
 
 [vars]
 NEXTJS_ENV = "production"
 NEXT_PUBLIC_SUPABASE_URL = "https://xacebfrqlylphqjvlcec.supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY = "sb_publishable_rLXwWtdC7I_moeL3AW2mmQ_483cCqVd"
+
+# Dominio apex tripverse.app como Custom Domain (sin DNS manual extra en CF)
+# Si falla el deploy por zona/cuenta, comenta estas líneas y asocia el dominio en el dashboard del Worker.
+[[routes]]
+pattern = "tripverse.app"
+custom_domain = true

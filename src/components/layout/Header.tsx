@@ -1,5 +1,8 @@
 'use client'
 
+import Image from 'next/image'
+import Link from 'next/link'
+
 const NAV_LINKS = [
   { label: 'Features',     href: '#features' },
   { label: 'Routes',       href: '#destinations' },
@@ -63,8 +66,8 @@ export default function Header() {
         style={{ maxWidth: 1180, margin: '0 auto', width: '100%' }}
       >
         {/* Brand */}
-        <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', flexShrink: 0 }}>
-          <img
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', flexShrink: 0 }}>
+          <Image
             src="/tripverse_app.png"
             alt="Tripverse"
             width={26}
@@ -74,7 +77,7 @@ export default function Header() {
           <span style={{ fontWeight: 700, fontSize: 16, color: '#0A0A0A', letterSpacing: '-0.025em' }}>
             Tripverse
           </span>
-        </a>
+        </Link>
 
         {/* Nav links */}
         <nav className="hidden md:flex items-center" style={{ gap: 28 }}>

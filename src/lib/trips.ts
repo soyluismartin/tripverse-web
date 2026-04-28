@@ -1,17 +1,19 @@
 import { createServerClient } from '@/lib/supabase/server'
 
+type JsonValue = string | number | boolean | null | { [key: string]: JsonValue } | JsonValue[]
+
 export interface TripRoute {
   id?: string
   trip_id?: string
   slug: string
   meta_title: string
   meta_description?: string
-  route_data: any
-  rationale_data?: any
-  costs_data?: any
-  activities_data?: any
-  finance_data?: any
-  meta_data: any
+  route_data: JsonValue
+  rationale_data?: JsonValue
+  costs_data?: JsonValue
+  activities_data?: JsonValue
+  finance_data?: JsonValue
+  meta_data: JsonValue
   created_at?: string
 }
 
@@ -21,15 +23,21 @@ export interface TripUser {
   avatar_url?: string
 }
 
+export interface TripDestination {
+  city?: string
+  country?: string
+  flag?: string
+}
+
 export interface Trip {
   id: string
   user_id: string
-  destinations: any[]
-  travel_window: any
+  destinations: TripDestination[]
+  travel_window: JsonValue
   budget: number
   travelers: string
   trip_pace: string
-  preferences: any
+  preferences: JsonValue
   tags: string[]
   likes_count: number
   trip_headline: string
@@ -38,36 +46,6 @@ export interface Trip {
   routes: TripRoute[]
   users?: TripUser | TripUser[] | null
 }
-
-const tripSelect = `
-  id,
-  user_id,
-  destinations,
-  travel_window,
-  budget,
-  travelers,
-  trip_pace,
-  preferences,
-  tags,
-  likes_count,
-  trip_headline,
-  status,
-  created_at,
-  routes!inner (
-    id,
-    trip_id,
-    slug,
-    meta_title,
-    meta_description,
-    route_data,
-    rationale_data,
-    costs_data,
-    activities_data,
-    finance_data,
-    meta_data,
-    created_at
-  )
-`
 
 const publicTripSelect = `
   *,

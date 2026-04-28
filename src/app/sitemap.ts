@@ -21,7 +21,7 @@ export default async function sitemap() {
   try {
     const count = await getPublicTripsCount()
     const pages = Math.ceil(count / 100)
-    const allTrips: any[] = []
+    const allTrips: Awaited<ReturnType<typeof getPublicTrips>> = []
 
     for (let i = 0; i < pages; i++) {
       const batch = await getPublicTrips(i, 100)

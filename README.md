@@ -37,23 +37,25 @@ npm run deploy
 # or similar package manager command
 ```
 
-### Cloudflare Pages / Workers
+### Cloudflare Workers (OpenNext — sin Pages Git)
 
 Seguir **[OpenNext Cloudflare — Get started](https://opennext.js.org/cloudflare/get-started)**.
 
-| Setting | Value |
+| Paso | Comando |
 | --- | --- |
-| **Build command** | `npm run pages:build` → equivale a `npx @opennextjs/cloudflare build` |
-| **Root directory** | Raíz del repo (donde está `package.json`) |
-| **Build output directory** | Vacío / por defecto si Wrangler lee **`wrangler.toml`**: debe figurar **`pages_build_output_dir`: `.open-next`** en ese archivo (salida OpenNext) |
+| Build app Next.js | `npm run build` |
+| Artifacts OpenNext | `npm run cf:build` → genera `.open-next/` (`worker.js`, `assets/`) |
+| Deploy | `npm run deploy` → `wrangler deploy` leyendo **`wrangler.toml`** |
 
 **Archivos:**
 
-- **`wrangler.toml`** — Configuración Pages: `pages_build_output_dir`, compatibilidad Node, `NEXTJS_ENV` en `[vars]`.
+- **`wrangler.toml`** — Worker: `main`, `[assets]`, `WORKER_SELF_REFERENCE`, `[vars]` (Supabase + `NEXTJS_ENV`), ruta **`tripverse.app`** como Custom Domain.
+
+Autenticación local: **`wrangler login`**.
 
 Compatibilidad: **`@opennextjs/cloudflare`** peer dependency exige **`next` ≥ 16.2.3**; este proyecto usa **Next.js 16.2.3**.
 
-Tras `npm ci`: `npm run pages:build` o `npm run preview`.
+Tras `npm ci`: `npm run cf:build`, luego `npm run deploy`.
 
 ## Learn More
 

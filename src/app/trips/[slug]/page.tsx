@@ -117,12 +117,16 @@ function routeDisplayStops(trip: Trip, segments: RouteSegment[] | undefined): Ro
   const withCity = list.filter(s => (s.city ?? '').trim())
   if (withCity.length > 0) return withCity
   return (trip.destinations ?? [])
-    .map(d => ({
-      city: d.city,
-      country: d.country,
-      flag: d.flag,
-      days: 1,
-    }))
+    .flatMap(d => {
+      if (!d || typeof d !== 'object') return []
+      const destination = d as Destination
+      return [{
+        city: destination.city,
+        country: destination.country,
+        flag: destination.flag,
+        days: 1,
+      }]
+    })
     .filter(s => (s.city ?? '').trim())
 }
 
