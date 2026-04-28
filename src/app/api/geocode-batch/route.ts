@@ -19,34 +19,39 @@ type Body = {
  * 2) Nominatim solo para ítems fallidos — ~1 req/s (política OSM).
  */
 export async function POST(request: Request) {
-  let body: Body
   try {
-    body = await request.json()
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
-  }
-
-  const queries = Array.isArray(body.queries)
-    ? body.queries.filter((q): q is string => typeof q === 'string').slice(0, 40)
-    : []
-
-  if (queries.length === 0) {
-    return NextResponse.json({ results: [] as GeocodeResult[] })
-  }
-
-  const results = await geocodePhotonParallel(queries)
-
-  let nominatimCalls = 0
-  for (let i = 0; i < results.length; i++) {
-    if (results[i].ok) continue
-    if (nominatimCalls > 0) {
-      await delay(1100)
+    let body: Body
+    try {
+      body = await request.json()
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
     }
-    nominatimCalls += 1
-    results[i] = await geocodeOneNominatim(queries[i])
-  }
 
-  return NextResponse.json({ results })
+    const queries = Array.isArray(body.queries)
+      ? body.queries.filter((q): q is string => typeof q === 'string').slice(0, 40)
+      : []
+
+    if (queries.length === 0) {
+      return NextResponse.json({ results: [] as GeocodeResult[] })
+    }
+
+    const results = await geocodePhotonParallel(queries)
+
+    let nominatimCalls = 0
+    for (let i = 0; i < results.length; i++) {
+      if (results[i].ok) continue
+      if (nominatimCalls > 0) {
+        await delay(1100)
+      }
+      nominatimCalls += 1
+      results[i] = await geocodeOneNominatim(queries[i])
+    }
+
+    return NextResponse.json({ results })
+  } catch (err) {
+    console.error('[api/geocode-batch]', err)
+    throw err
+  }
 }
 
 function delay(ms: number) {

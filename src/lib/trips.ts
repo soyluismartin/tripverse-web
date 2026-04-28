@@ -168,7 +168,10 @@ export async function getPublicTrips(page = 0, limit = 12, options: PublicTripsO
 
   const { data, error } = await query.range(from, to)
 
-  if (error) throw error
+  if (error) {
+    console.error('[SSR trips/getPublicTrips]', error)
+    throw error
+  }
 
   return (data ?? []).map(trip => ({
     ...trip,
@@ -182,7 +185,10 @@ export async function getAvailableTripTags(): Promise<Set<string>> {
     .from('trips')
     .select('tags')
 
-  if (error) throw error
+  if (error) {
+    console.error('[SSR trips/getAvailableTripTags]', error)
+    throw error
+  }
 
   const result = new Set<string>()
   for (const row of data ?? []) {
@@ -206,8 +212,10 @@ export async function getTripBySlug(slug: string): Promise<Trip | null> {
     .eq('slug', slug)
     .maybeSingle()
 
-  if (error) throw error
-  if (!data) return null
+  if (error) {
+    console.error('[SSR trips/getTripBySlug]', { slug, error })
+    throw error
+  }
 
   const { trips, ...route } = data as unknown as RouteWithTrip
   const trip = Array.isArray(trips) ? trips[0] : trips
@@ -228,7 +236,10 @@ export async function getPublicTripsCount(): Promise<number> {
     .select('id, routes!inner(id, slug)', { count: 'exact', head: true })
     .not('routes.slug', 'is', null)
 
-  if (error) throw error
+  if (error) {
+    console.error('[SSR trips/getPublicTripsCount]', error)
+    throw error
+  }
 
   return count ?? 0
 }
