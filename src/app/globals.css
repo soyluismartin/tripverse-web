@@ -984,7 +984,7 @@ body:has(.trip-detail-page) {
 .trip-detail-card--locked::after {
 	backdrop-filter: blur(8px);
 	-webkit-backdrop-filter: blur(8px);
-	background: color-mix(in srgb, var(--color-surface) 22%, transparent);
+	background: color-mix(in srgb, var(--color-surface) 28%, transparent);
 	border-radius: inherit;
 	content: '';
 	inset: 0;
@@ -1052,6 +1052,20 @@ body:has(.trip-detail-page) {
 	line-height: 1.6;
 	margin: 0 0 4px;
 	max-width: 46ch;
+}
+
+/* Fallback para navegadores sin soporte real de backdrop-filter. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	.trip-detail-card--locked::after {
+		-webkit-backdrop-filter: none;
+		backdrop-filter: none;
+		background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+	}
+
+	.trip-detail-locked-overlay {
+		background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+		border-color: color-mix(in srgb, var(--color-border) 96%, transparent);
+	}
 }
 
 @media (hover: hover) {
