@@ -5,16 +5,16 @@ import Image from 'next/image'
 import { IMGS } from '@/lib/images'
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
-const BG    = '#F2F2F7'
-const CARD  = '#FFFFFF'
-const SEC   = '#E9E9EF'
-const DARK  = '#0A0A0A'
-const MUTED = '#8E8E93'
-const BDL   = '#E5E5EA'
-const BDM   = '#C7C7CC'
-const BLUE  = '#0286fd'
-const BLBG  = '#E8F3FF'
-const SHADOW = '0 4px 20px rgba(0,0,0,0.08)'
+const BG    = 'var(--color-bg)'
+const CARD  = 'var(--color-surface)'
+const SEC   = 'var(--color-surface-2)'
+const DARK  = 'var(--color-text)'
+const MUTED = 'var(--color-muted)'
+const BDL   = 'var(--color-border)'
+const BDM   = 'var(--color-border-md)'
+const BLUE  = 'var(--color-accent)'
+const BLBG  = 'var(--color-accent-bg)'
+const SHADOW = 'var(--shadow-card)'
 
 // ── Scroll reveal ─────────────────────────────────────────────────────────────
 function useReveal(t = 0.1) {
@@ -92,21 +92,65 @@ function NavDots() {
 
 // ── Phone mockup ──────────────────────────────────────────────────────────────
 function Phone({ label = 'screen', width = 220, dark = false, children }: { label?: string; width?: number; dark?: boolean; children?: ReactNode }) {
-  const h   = Math.round(width * 2.1)
-  const r   = Math.round(width * 0.13)
-  const pad = 6
+  const r = Math.round(width * 0.145)
+  const bezel = Math.max(5, Math.round(width * 0.026))
+  const phoneW = `min(${width}px, 72vw)`
+  const scaleLen = (factor: number, min = 0) => `clamp(${min}px, ${(72 * factor).toFixed(2)}vw, ${Math.round(width * factor)}px)`
+  const phoneR = `clamp(30px, 10.5vw, ${r}px)`
+  const phoneBezel = `clamp(5px, 1.9vw, ${bezel}px)`
+  const screenRadius = `calc(${phoneR} - ${phoneBezel} + 1px)`
   return (
-    <div style={{
-      position: 'relative', width, height: h, flexShrink: 0,
-      borderRadius: r, background: '#1C1C1E',
-      boxShadow: '0 24px 64px rgba(0,0,0,0.28), 0 4px 12px rgba(0,0,0,0.18)',
+    <div className="phone-mockup" style={{
+      position: 'relative',
+      width: phoneW,
+      aspectRatio: '1 / 2.12',
+      flexShrink: 0,
+      borderRadius: phoneR,
+      background: '#0B0B0D',
+      border: '2px solid #1A1A1C',
+      boxShadow: '0 28px 70px rgba(0,0,0,0.22), 0 8px 22px rgba(0,0,0,0.14)',
     }}>
+      {/* Side buttons */}
+      <div style={{
+        position: 'absolute',
+        left: -4,
+        top: scaleLen(0.33),
+        width: 3,
+        height: scaleLen(0.12),
+        borderRadius: '3px 0 0 3px',
+        background: '#111113',
+      }} />
+      <div style={{
+        position: 'absolute',
+        left: -4,
+        top: scaleLen(0.5),
+        width: 3,
+        height: scaleLen(0.17),
+        borderRadius: '3px 0 0 3px',
+        background: '#111113',
+      }} />
+      <div style={{
+        position: 'absolute',
+        right: -4,
+        top: scaleLen(0.48),
+        width: 3,
+        height: scaleLen(0.22),
+        borderRadius: '0 3px 3px 0',
+        background: '#111113',
+      }} />
+
       {/* Screen */}
       <div style={{
-        position: 'absolute', top: pad + 18, left: pad, right: pad, bottom: pad + 16,
-        borderRadius: r - pad + 1, overflow: 'hidden',
-        background: dark ? '#12122A' : CARD,
+        position: 'absolute',
+        top: phoneBezel,
+        left: phoneBezel,
+        right: phoneBezel,
+        bottom: phoneBezel,
+        borderRadius: screenRadius,
+        overflow: 'hidden',
+        background: dark ? '#12122A' : '#fff',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
+        boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.04)',
       }}>
         {children ?? (
           <div style={{
@@ -120,21 +164,38 @@ function Phone({ label = 'screen', width = 220, dark = false, children }: { labe
           </div>
         )}
       </div>
-      {/* Notch */}
+
+      {/* Dynamic Island */}
       <div style={{
-        position: 'absolute', top: pad + 4, left: '50%', transform: 'translateX(-50%)',
-        width: 36, height: 10, background: '#111', borderRadius: 5, zIndex: 3,
-      }}/>
-      {/* Home bar */}
-      <div style={{
-        position: 'absolute', bottom: pad + 4, left: '50%', transform: 'translateX(-50%)',
-        width: 28, height: 4, background: '#3A3A3C', borderRadius: 2,
-      }}/>
+        position: 'absolute',
+        top: scaleLen(0.033, 9),
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: scaleLen(0.28),
+        height: scaleLen(0.068, 14),
+        background: '#030304',
+        borderRadius: 999,
+        zIndex: 5,
+        boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.08)',
+      }}>
+        <span style={{
+          position: 'absolute',
+          right: scaleLen(0.035),
+          top: '50%',
+          transform: 'translateY(-50%)',
+          width: scaleLen(0.022, 5),
+          height: scaleLen(0.022, 5),
+          borderRadius: '50%',
+          background: 'radial-gradient(circle at 35% 35%, #4C7DFF 0%, #173060 38%, #07101F 100%)',
+          boxShadow: '0 0 0 1px rgba(255,255,255,0.08)',
+        }} />
+      </div>
+
       {/* Frame border overlay */}
       <div style={{
-        position: 'absolute', inset: 0, borderRadius: r,
-        boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.08)',
-        pointerEvents: 'none', zIndex: 4,
+        position: 'absolute', inset: 0, borderRadius: phoneR,
+        boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.18), inset 0 0 0 3px rgba(0,0,0,0.88)',
+        pointerEvents: 'none', zIndex: 6,
       }}/>
     </div>
   )
@@ -186,12 +247,6 @@ function DestinationPickerScreen() {
 
   return (
     <div style={{ width: '100%', height: '100%', background: '#F8F8FB', padding: '18px 12px', overflow: 'hidden' }}>
-      <style>{`
-        @keyframes destination-scroll {
-          from { transform: translateY(0); }
-          to { transform: translateY(-46%); }
-        }
-      `}</style>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
         <span style={{ fontSize: 10, color: MUTED }}>9:41</span>
         <span style={{ fontSize: 10, color: MUTED }}>100%</span>
@@ -364,7 +419,7 @@ function FeatureChip({ icon, label, color = BLUE }: { icon: string; label: strin
         width: 38,
         height: 38,
         borderRadius: '50%',
-        background: `${color}22`,
+        background: `color-mix(in srgb, ${color} 14%, transparent)`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -382,40 +437,123 @@ function FeatureChip({ icon, label, color = BLUE }: { icon: string; label: strin
 // ═════════════════════════════════════════════════════════════════════════════
 
 function Hero() {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [soundEnabled, setSoundEnabled] = useState(false)
+
+  const toggleSound = () => {
+    const video = videoRef.current
+    if (!video) return
+
+    const nextSoundEnabled = !soundEnabled
+    video.muted = !nextSoundEnabled
+    void video.play()
+    setSoundEnabled(nextSoundEnabled)
+  }
+
   return (
-    <section id="hero" style={{ background: CARD, padding: '96px 24px 72px', overflow: 'hidden' }}>
-      <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
-        <Reveal>
-          <h1 style={{
-            fontSize: 'clamp(44px, 7vw, 82px)', fontWeight: 800,
-            color: DARK, letterSpacing: '-0.055em', lineHeight: 1,
-            margin: '0 auto 24px', maxWidth: 760,
+    <section id="hero" className="hero-section" style={{ background: CARD, padding: '118px 24px 92px', overflow: 'hidden' }}>
+      <div className="hero-inner" style={{ maxWidth: 1180, margin: '0 auto', textAlign: 'left' }}>
+        <Reveal className="hero-grid">
+          <div className="hero-copy">
+          <h1 className="hero-title" style={{
+            fontSize: 'clamp(46px, 4.7vw, 68px)', fontWeight: 800,
+            color: DARK, letterSpacing: '-0.06em', lineHeight: 1,
+            margin: '0 0 24px', maxWidth: 760,
           }}>
-            Plan your next trip<br />
-            in seconds.
+            <span className="hero-title-line">Plan your next trip</span>
+            <span className="hero-title-break"><br /></span>
+            <span className="hero-title-line">in seconds.</span>
           </h1>
-          <p style={{ fontSize: 18, color: MUTED, lineHeight: 1.7, maxWidth: 500, margin: '0 auto 34px' }}>
+          <p style={{ fontSize: 20, color: MUTED, lineHeight: 1.65, maxWidth: 560, margin: '0 0 34px' }}>
             Tripverse turns your travel ideas into a complete route with guides,
             transport, costs, and everything you need to go.
           </p>
-          <a href="#" style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 12,
-            background: BLUE, color: '#fff', borderRadius: 99,
-            padding: '18px 48px', fontSize: 18, fontWeight: 700,
-            letterSpacing: '-0.01em', textDecoration: 'none',
-            boxShadow: '0 8px 32px rgba(2,134,253,0.30)',
-            transition: 'transform 0.15s, box-shadow 0.15s',
-          }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 14px 44px rgba(2,134,253,0.42)' }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(2,134,253,0.30)' }}
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M10 3v10M10 13l-4-4M10 13l4-4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M3 16h14" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-            Download on the App Store
-          </a>
-          <p style={{ fontSize: 13, color: MUTED, marginTop: 14 }}>Available on iOS · Designed for people who love to travel</p>
+          <div className="hero-cta-block" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center' }}>
+            <a href="#" className="app-store-cta" style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 12,
+              background: BLUE, color: '#fff', borderRadius: 99,
+              padding: '17px 38px', fontSize: 17, fontWeight: 700,
+              letterSpacing: '-0.01em', textDecoration: 'none',
+              boxShadow: '0 8px 32px rgba(2,134,253,0.30)',
+              transition: 'transform 0.15s, box-shadow 0.15s',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 14px 44px rgba(2,134,253,0.42)' }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(2,134,253,0.30)' }}
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 3v10M10 13l-4-4M10 13l4-4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M3 16h14" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+              Download on the App Store
+            </a>
+            <p style={{ fontSize: 13, color: MUTED, marginTop: 14, marginBottom: 0, textAlign: 'center' }}>Available on iOS · Designed for people who love to travel</p>
+          </div>
+          </div>
+
+          <div className="hero-video-card" style={{
+            position: 'relative',
+            borderRadius: 30,
+            overflow: 'hidden',
+            background: '#F7F7FB',
+            border: `1px solid ${BDL}`,
+            boxShadow: '0 22px 60px rgba(0,0,0,0.09)',
+            aspectRatio: '16 / 10',
+          }}>
+            <video
+              ref={videoRef}
+              src="/video.mp4"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                background: 'transparent',
+              }}
+            />
+            <button
+              type="button"
+              onClick={toggleSound}
+              aria-label={soundEnabled ? 'Mute video' : 'Enable video sound'}
+              style={{
+                position: 'absolute',
+                right: 18,
+                bottom: 18,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                border: 'none',
+                borderRadius: 99,
+                padding: '11px 15px',
+                background: 'rgba(255,255,255,0.92)',
+                color: DARK,
+                fontSize: 13,
+                fontWeight: 800,
+                cursor: 'pointer',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.18)',
+                backdropFilter: 'blur(14px)',
+              }}
+            >
+              {soundEnabled ? (
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                  <path d="M3 8v4h3l4 3V5L6 8H3Z" fill="currentColor"/>
+                  <path d="M13 7c1 .9 1.5 1.9 1.5 3S14 12.1 13 13M15.5 4.8A7 7 0 0 1 18 10a7 7 0 0 1-2.5 5.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                </svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                  <path d="M3 8v4h3l4 3V5L6 8H3Z" fill="currentColor"/>
+                  <path d="M13.5 8.5 17 12M17 8.5 13.5 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                </svg>
+              )}
+              {soundEnabled ? 'Sound on' : 'Enable sound'}
+            </button>
+          </div>
         </Reveal>
       </div>
     </section>
@@ -430,46 +568,56 @@ function Features() {
     { src: IMGS.adventure, label: 'Alps' },
     { src: IMGS.city, label: 'New York' },
     { src: IMGS.kyoto, label: 'Kyoto' },
+    { src: IMGS.london, label: 'London' },
+    { src: IMGS.rome, label: 'Rome' },
+    { src: IMGS.barcelona, label: 'Barcelona' },
+    { src: IMGS.santorini, label: 'Santorini' },
+    { src: IMGS.istanbul, label: 'Istanbul' },
+    { src: IMGS.marrakech, label: 'Marrakech' },
+    { src: IMGS.rio, label: 'Rio' },
+    { src: IMGS.singapore, label: 'Singapore' },
+    { src: IMGS.capetown, label: 'Cape Town' },
+    { src: IMGS.venice, label: 'Venice' },
+    { src: IMGS.iceland, label: 'Iceland' },
+    { src: IMGS.dubai, label: 'Dubai' },
+    { src: IMGS.sydney, label: 'Sydney' },
+    { src: IMGS.mexicoCity, label: 'Mexico City' },
+  ]
+  const photoRows = [
+    destinationPhotos.slice(0, 10),
+    destinationPhotos.slice(10),
   ]
 
   return (
     <section id="features" style={{ background: BG, padding: '72px 0 88px', overflow: 'hidden' }}>
-      <style>{`
-        @keyframes tripverse-photo-left {
-          from { transform: translateX(0); }
-          to { transform: translateX(-25%); }
-        }
-        @keyframes tripverse-photo-right {
-          from { transform: translateX(-25%); }
-          to { transform: translateX(0); }
-        }
-      `}</style>
-
       <Reveal>
-        <div style={{ position: 'relative', minHeight: 760, overflow: 'hidden' }}>
+        <div className="features-stage" style={{ position: 'relative', minHeight: 840, overflow: 'visible' }}>
+          <div className="features-copy" style={{ position: 'relative', zIndex: 4, textAlign: 'center', padding: '28px 24px 0' }}>
+            <h2 style={{
+              fontSize: 'clamp(34px, 5vw, 64px)',
+              fontWeight: 800,
+              color: DARK,
+              letterSpacing: '-0.055em',
+              lineHeight: 1.04,
+              margin: '0 auto 16px',
+              maxWidth: 700,
+            }}>
+              Scroll destinations.<br />
+              Build the perfect route.
+            </h2>
+            <p style={{ fontSize: 17, color: MUTED, lineHeight: 1.7, maxWidth: 500, margin: '0 auto' }}>
+              Pick the places you want to visit and Tripverse turns them into a route
+              with timing, transport, guides and costs.
+            </p>
+          </div>
+
           {/* Moving photos directly on the grey background */}
-          <div style={{
-            position: 'absolute',
-            top: 315,
-            left: -120,
-            right: -120,
-            transform: 'translateY(-50%)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 20,
-            zIndex: 1,
-            opacity: 0.76,
-          }}>
-            {[0, 1].map(row => (
+          <div className="photo-ticker-stack">
+            {photoRows.map((rowPhotos, row) => (
               <div key={row} style={{ overflow: 'visible', background: BG }}>
-                <div style={{
-                  display: 'inline-flex',
-                  gap: 20,
-                  whiteSpace: 'nowrap',
-                  animation: `${row === 0 ? 'tripverse-photo-left' : 'tripverse-photo-right'} ${row === 0 ? 130 : 150}s linear infinite`,
-                }}>
-                  {[...destinationPhotos, ...destinationPhotos, ...destinationPhotos, ...destinationPhotos].map((p, i) => (
-                    <div key={`${p.label}-${row}-${i}`} className="hover-scale" style={{
+                <div className={`photo-ticker-track ${row === 0 ? 'photo-ticker-track--left' : 'photo-ticker-track--right'}`}>
+                  {[...rowPhotos, ...rowPhotos, ...rowPhotos, ...rowPhotos].map((p, i) => (
+                    <div key={`${p.label}-${row}-${i}`} className="hover-scale destination-photo-card" style={{
                       width: row === 0 ? 210 : 170,
                       height: row === 0 ? 138 : 112,
                       borderRadius: 28,
@@ -494,7 +642,7 @@ function Features() {
           {/* Soft glow only behind the phone, matching the page background */}
           <div style={{
             position: 'absolute',
-            top: 34,
+            top: 270,
             left: '50%',
             width: 640,
             height: 560,
@@ -505,29 +653,10 @@ function Features() {
             zIndex: 0,
           }} />
 
-          <div style={{ position: 'relative', zIndex: 3, display: 'flex', justifyContent: 'center', paddingTop: 56 }}>
+          <div style={{ position: 'relative', zIndex: 3, display: 'flex', justifyContent: 'center', paddingTop: 84, paddingBottom: 46 }}>
             <Phone width={285}>
               <DestinationPickerScreen />
             </Phone>
-          </div>
-
-          <div style={{ position: 'relative', zIndex: 3, textAlign: 'center', marginTop: 42, padding: '0 24px' }}>
-            <h2 style={{
-              fontSize: 'clamp(34px, 5vw, 64px)',
-              fontWeight: 800,
-              color: DARK,
-              letterSpacing: '-0.055em',
-              lineHeight: 1.04,
-              margin: '0 auto 16px',
-              maxWidth: 700,
-            }}>
-              Scroll destinations.<br />
-              Build the perfect route.
-            </h2>
-            <p style={{ fontSize: 17, color: MUTED, lineHeight: 1.7, maxWidth: 500, margin: '0 auto' }}>
-              Pick the places you want to visit and Tripverse turns them into a route
-              with timing, transport, guides and costs.
-            </p>
           </div>
         </div>
       </Reveal>
@@ -539,17 +668,16 @@ function Features() {
 const ROW1 = ['London', 'Paris', 'Tokyo', 'New York', 'Rome', 'Barcelona', 'Lisbon', 'Bali', 'Sydney', 'Dubai']
 const ROW2 = ['Amsterdam', 'Kyoto', 'Cape Town', 'Santorini', 'Mexico City', 'Vienna', 'Prague', 'Istanbul', 'Marrakech', 'Buenos Aires']
 const ROW3 = ['Singapore', 'Bangkok', 'Maldives', 'Reykjavik', 'Dubrovnik', 'Osaka', 'Miami', 'Zurich', 'Rio de Janeiro', 'Edinburgh']
+const ROW4 = ['Seoul', 'Copenhagen', 'Athens', 'Florence', 'Havana', 'Porto', 'Seville', 'Vancouver', 'Nairobi', 'Queenstown']
+const ROW5 = ['Lima', 'Cusco', 'Cartagena', 'Hanoi', 'Helsinki', 'Budapest', 'Krakow', 'Doha', 'Auckland', 'Montreal']
 
 function TickerRow({ items, reverse = false, dim = false }: { items: string[]; reverse?: boolean; dim?: boolean }) {
   const doubled = [...items, ...items]
   return (
     <div style={{ overflow: 'hidden', width: '100%' }}>
-      <div style={{
-        display: 'inline-flex', gap: 40, whiteSpace: 'nowrap',
-        animation: `ticker-${reverse ? 'right' : 'left'} 120s linear infinite`,
-      }}>
+      <div className={`destination-ticker-track ${reverse ? 'destination-ticker-track--right' : 'destination-ticker-track--left'}`}>
         {doubled.map((city, i) => (
-          <span key={i} style={{
+          <span key={i} className="destination-name-ticker" style={{
             fontSize: 'clamp(22px, 3vw, 36px)',
             fontWeight: 800,
             letterSpacing: '-0.03em',
@@ -564,30 +692,71 @@ function TickerRow({ items, reverse = false, dim = false }: { items: string[]; r
   )
 }
 
+function AnimatedStat({
+  target,
+  label,
+  prefix = '',
+  suffix = '',
+  decimals = 0,
+}: {
+  target: number
+  label: string
+  prefix?: string
+  suffix?: string
+  decimals?: number
+}) {
+  const { ref, visible } = useReveal(0.35)
+  const [value, setValue] = useState(0)
+
+  useEffect(() => {
+    if (!visible) return
+
+    const duration = 1400
+    const start = performance.now()
+    let frame = 0
+
+    const tick = (time: number) => {
+      const progress = Math.min((time - start) / duration, 1)
+      const eased = 1 - Math.pow(1 - progress, 3)
+
+      setValue(target * eased)
+
+      if (progress < 1) {
+        frame = window.requestAnimationFrame(tick)
+      }
+    }
+
+    frame = window.requestAnimationFrame(tick)
+    return () => window.cancelAnimationFrame(frame)
+  }, [target, visible])
+
+  const displayValue = decimals > 0 ? value.toFixed(decimals) : Math.round(value).toString()
+
+  return (
+    <div ref={ref} className="hover-scale" style={{
+      textAlign: 'center',
+      padding: '16px 18px',
+    }}>
+      <div style={{ fontSize: 'clamp(40px, 5vw, 68px)', fontWeight: 800, color: DARK, letterSpacing: '-0.06em', lineHeight: 0.95 }}>
+        {prefix}{displayValue}{suffix}
+      </div>
+      <div style={{ fontSize: 15, color: MUTED, marginTop: 12, fontWeight: 700, letterSpacing: '-0.01em' }}>
+        {label}
+      </div>
+    </div>
+  )
+}
+
 function ProofStrip() {
   return (
     <section style={{ background: BG, padding: '0 24px 40px' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+      <div style={{ maxWidth: 1180, margin: '0 auto' }}>
         <Reveal>
           <div className="grid grid-cols-2 md:grid-cols-4" style={{ gap: 18 }}>
-            {[
-              ['10K+', 'Trips planned'],
-              ['80+', 'Countries covered'],
-              ['4.9★', 'Average rating'],
-              ['<60s', 'To generate your route'],
-            ].map(([value, label]) => (
-              <div key={label} className="hover-scale" style={{
-                textAlign: 'center',
-                padding: '16px 18px',
-              }}>
-                <div style={{ fontSize: 'clamp(40px, 5vw, 68px)', fontWeight: 800, color: DARK, letterSpacing: '-0.06em', lineHeight: 0.95 }}>
-                  {value}
-                </div>
-                <div style={{ fontSize: 15, color: MUTED, marginTop: 12, fontWeight: 700, letterSpacing: '-0.01em' }}>
-                  {label}
-                </div>
-              </div>
-            ))}
+            <AnimatedStat target={10} suffix="K+" label="Trips planned" />
+            <AnimatedStat target={80} suffix="+" label="Countries covered" />
+            <AnimatedStat target={4.9} suffix="★" label="Average rating" decimals={1} />
+            <AnimatedStat target={60} prefix="<" suffix="s" label="To generate your route" />
           </div>
         </Reveal>
       </div>
@@ -598,14 +767,9 @@ function ProofStrip() {
 function Destinations() {
   return (
     <section id="destinations" style={{ background: BG, padding: '80px 24px 32px' }}>
-      <style>{`
-        @keyframes ticker-left  { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-        @keyframes ticker-right { from { transform: translateX(-50%); } to { transform: translateX(0); } }
-      `}</style>
+      <div style={{ maxWidth: 1180, margin: '0 auto' }}>
 
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-
-        <div style={{
+        <div className="route-card" style={{
           background: CARD, borderRadius: 32,
           border: `1px solid ${BDL}`,
           boxShadow: '0 8px 40px rgba(0,0,0,0.06)',
@@ -615,41 +779,7 @@ function Destinations() {
           padding: '56px 24px 48px',
         }}>
 
-          <div style={{
-            position: 'absolute',
-            top: 300,
-            left: 0,
-            right: 0,
-            transform: 'translateY(-50%)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 20,
-          }}>
-            <TickerRow items={ROW1} />
-            <TickerRow items={ROW2} reverse dim />
-            <TickerRow items={ROW3} />
-            <TickerRow items={ROW1.slice().reverse()} reverse dim />
-          </div>
-
-          <div style={{
-            position: 'absolute', top: 48, left: '50%', transform: 'translateX(-50%)',
-            width: 520, height: 520,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(255,255,255,1) 42%, rgba(255,255,255,0.72) 58%, rgba(255,255,255,0) 78%)',
-            pointerEvents: 'none',
-            zIndex: 1,
-          }}/>
-
-          <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'center', paddingTop: 16 }}>
-            <Phone width={255}>
-              <MiniRouteScreen />
-            </Phone>
-          </div>
-
-          <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 120, background: 'linear-gradient(to right, #fff 0%, transparent 100%)', pointerEvents: 'none' }}/>
-          <div style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: 120, background: 'linear-gradient(to left, #fff 0%, transparent 100%)', pointerEvents: 'none' }}/>
-
-          <Reveal style={{ position: 'relative', zIndex: 3, textAlign: 'center', marginTop: 44 }}>
+          <Reveal style={{ position: 'relative', zIndex: 3, textAlign: 'center', marginBottom: 28 }}>
             <h2 style={{
               fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 800,
               color: DARK, letterSpacing: '-0.04em', lineHeight: 1.12,
@@ -658,6 +788,32 @@ function Destinations() {
               Plan any route with no destination limits
             </h2>
           </Reveal>
+
+          <div className="route-ticker-stack">
+            <TickerRow items={ROW1} />
+            <TickerRow items={ROW2} reverse dim />
+            <TickerRow items={ROW3} />
+            <TickerRow items={ROW4} reverse dim />
+            <TickerRow items={ROW5} />
+          </div>
+
+          <div className="route-glow" style={{
+            position: 'absolute', top: 104, left: '50%', transform: 'translateX(-50%)',
+            width: 520, height: 520,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(255,255,255,1) 42%, rgba(255,255,255,0.72) 58%, rgba(255,255,255,0) 78%)',
+            pointerEvents: 'none',
+            zIndex: 1,
+          }}/>
+
+          <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'center', paddingTop: 0 }}>
+            <Phone width={255}>
+              <MiniRouteScreen />
+            </Phone>
+          </div>
+
+          <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 120, background: 'linear-gradient(to right, #fff 0%, transparent 100%)', pointerEvents: 'none' }}/>
+          <div style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: 120, background: 'linear-gradient(to left, #fff 0%, transparent 100%)', pointerEvents: 'none' }}/>
         </div>
 
       </div>
@@ -668,7 +824,7 @@ function Destinations() {
 function AiChat() {
   return (
     <section id="ai-chat" style={{ background: BG, padding: '0 24px 80px' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+      <div style={{ maxWidth: 1180, margin: '0 auto' }}>
         <Reveal>
           <div style={{ background: CARD, borderRadius: 32, border: `1px solid ${BDL}`, boxShadow: '0 8px 40px rgba(0,0,0,0.06)', minHeight: 640, position: 'relative', overflow: 'hidden', padding: '64px 24px 52px', textAlign: 'center' }}>
             <div style={{ position: 'absolute', right: 120, top: 120, fontSize: 180, color: 'rgba(2,134,253,0.05)', lineHeight: 1 }}>✦</div>
@@ -680,7 +836,7 @@ function AiChat() {
               </Phone>
             </div>
 
-            <h2 style={{ fontSize: 'clamp(26px, 3.2vw, 40px)', fontWeight: 800, color: DARK, letterSpacing: '-0.04em', lineHeight: 1.1, margin: '36px auto 14px', maxWidth: 520 }}>
+            <h2 style={{ fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 800, color: DARK, letterSpacing: '-0.04em', lineHeight: 1.12, margin: '36px auto 14px', maxWidth: 520 }}>
               Get an answer on any travel question
             </h2>
             <p style={{ fontSize: 16, color: MUTED, lineHeight: 1.7, maxWidth: 500, margin: '0 auto 28px' }}>
@@ -728,21 +884,21 @@ function StatsCallout() {
   useEffect(() => {
     const timer = window.setInterval(() => {
       setActiveStyle(current => (current + 1) % 8)
-    }, 900)
+    }, 2200)
 
     return () => window.clearInterval(timer)
   }, [])
 
   return (
     <section style={{ background: BG, padding: '0 24px 80px' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+      <div style={{ maxWidth: 1180, margin: '0 auto' }}>
         <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: 24 }}>
           <Reveal>
-            <div style={{ background: CARD, borderRadius: 32, height: 360, border: `1px solid ${BDL}`, boxShadow: '0 8px 40px rgba(0,0,0,0.05)', overflow: 'hidden', padding: '42px 28px 34px', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ height: 170, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="stat-callout-card" style={{ background: CARD, borderRadius: 32, height: 360, border: `1px solid ${BDL}`, boxShadow: '0 8px 40px rgba(0,0,0,0.05)', overflow: 'hidden', padding: '42px 28px 34px', display: 'flex', flexDirection: 'column' }}>
+              <div className="stat-card-visual" style={{ height: 170, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', maxWidth: 390 }}>
                 {['Culture', 'Beach', 'Food', 'Road trip', 'Family', 'Luxury', 'Adventure', 'Budget'].map((item, i) => (
-                  <span key={item} className="hover-scale" style={{
+                  <span key={item} className="hover-scale travel-style-tag" style={{
                     display: 'inline-flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -765,7 +921,7 @@ function StatsCallout() {
                 ))}
                 </div>
               </div>
-              <div style={{ textAlign: 'center', marginTop: 'auto' }}>
+              <div className="small-card-copy" style={{ textAlign: 'center', marginTop: 'auto' }}>
                 <h3 style={{ fontSize: 26, fontWeight: 800, color: DARK, letterSpacing: '-0.04em', lineHeight: 1.1, margin: '0 0 8px' }}>
                   See trips for every travel style
                 </h3>
@@ -775,10 +931,10 @@ function StatsCallout() {
           </Reveal>
 
           <Reveal delay={120}>
-            <div style={{ background: CARD, borderRadius: 32, height: 360, border: `1px solid ${BDL}`, boxShadow: '0 8px 40px rgba(0,0,0,0.05)', padding: '42px 28px 34px', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ height: 170, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="stat-callout-card" style={{ background: CARD, borderRadius: 32, height: 360, border: `1px solid ${BDL}`, boxShadow: '0 8px 40px rgba(0,0,0,0.05)', padding: '42px 28px 34px', display: 'flex', flexDirection: 'column' }}>
+              <div className="stat-card-visual" style={{ height: 170, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ width: '100%', maxWidth: 430 }}>
-                  <div style={{ fontSize: 56, fontWeight: 800, color: DARK, letterSpacing: '-0.06em', lineHeight: 1, marginBottom: 28, textAlign: 'center' }}>
+                  <div className="budget-value" style={{ fontSize: 56, fontWeight: 800, color: DARK, letterSpacing: '-0.06em', lineHeight: 1, marginBottom: 28, textAlign: 'center' }}>
                     {formatBudget(budget)}
                   </div>
                   <div style={{ position: 'relative', height: 28, marginBottom: 22 }}>
@@ -789,7 +945,7 @@ function StatsCallout() {
                       top: 11,
                       height: 5,
                       borderRadius: 99,
-                      background: `linear-gradient(to right, ${DARK} 0%, ${DARK} ${((budget - 300) / (20000 - 300)) * 100}%, ${BDL} ${((budget - 300) / (20000 - 300)) * 100}%, ${BDL} 100%)`,
+                      background: `linear-gradient(to right, ${BLUE} 0%, ${BLUE} ${((budget - 300) / (20000 - 300)) * 100}%, ${BDL} ${((budget - 300) / (20000 - 300)) * 100}%, ${BDL} 100%)`,
                     }} />
                     <input
                       type="range"
@@ -829,21 +985,22 @@ function StatsCallout() {
                       <button
                         key={value}
                         type="button"
-                        className="hover-scale"
+                        className="hover-scale budget-option"
                         onClick={() => {
                           setBudgetTouched(true)
                           setBudget(value)
                         }}
                         style={{
-                          background: Math.abs(budget - value) < 250 ? DARK : '#F0F0F5',
-                          color: Math.abs(budget - value) < 250 ? '#fff' : DARK,
+                          background: Math.abs(budget - value) < 250 ? BLUE : BLBG,
+                          color: Math.abs(budget - value) < 250 ? '#fff' : BLUE,
                           borderRadius: 14,
                           padding: '8px 14px',
                           fontSize: 13,
                           fontWeight: 800,
-                          border: 'none',
+                          border: `1px solid ${Math.abs(budget - value) < 250 ? BLUE : 'transparent'}`,
                           cursor: 'pointer',
-                          transition: 'background 0.15s, color 0.15s',
+                          boxShadow: Math.abs(budget - value) < 250 ? '0 8px 24px rgba(2,134,253,0.22)' : 'none',
+                          transition: 'background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s',
                         }}
                       >
                         {value >= 20000 ? '$20k+' : value >= 1000 ? `$${value / 1000}k` : `$${value}`}
@@ -852,7 +1009,7 @@ function StatsCallout() {
                   </div>
                 </div>
               </div>
-              <div style={{ textAlign: 'center', marginTop: 'auto' }}>
+              <div className="small-card-copy" style={{ textAlign: 'center', marginTop: 'auto' }}>
                 <h3 style={{ fontSize: 26, fontWeight: 800, color: DARK, letterSpacing: '-0.04em', lineHeight: 1.1, margin: '0 0 8px' }}>
                   Pick a budget before you plan
                 </h3>
@@ -957,14 +1114,7 @@ function Testimonials() {
 
   return (
     <section id="testimonials" style={{ background: BG, padding: '96px 0' }}>
-      <style>{`
-        @keyframes reviews-left {
-          from { transform: translateX(0); }
-          to { transform: translateX(-50%); }
-        }
-      `}</style>
-
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px' }}>
+      <div style={{ maxWidth: 1180, margin: '0 auto', padding: '0 24px' }}>
         <Reveal style={{ textAlign: 'center', marginBottom: 64 }}>
           <h2 style={{ fontSize: 'clamp(34px, 5vw, 64px)', fontWeight: 800, color: DARK, letterSpacing: '-0.05em', lineHeight: 1.02, margin: 0 }}>
             Loved by both<br />planners & explorers
@@ -1054,29 +1204,202 @@ function Testimonials() {
   )
 }
 
+type ShowcaseFeature = {
+  title: string
+  description: string
+  image: string
+  eyebrow: string
+  bullets: string[]
+  accent: string
+}
+
+function ShowcasePhoneScreen({ feature }: { feature: ShowcaseFeature }) {
+  return (
+    <div style={{ width: '100%', height: '100%', background: '#F8F8FB', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ position: 'relative', height: '42%', overflow: 'hidden' }}>
+        <Image src={feature.image} alt={feature.title} fill style={{ objectFit: 'cover' }} sizes="260px" />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.46), rgba(0,0,0,0.05))' }} />
+        <div style={{ position: 'absolute', left: 16, right: 16, bottom: 16 }}>
+          <div style={{ color: '#fff', fontSize: 10, fontWeight: 800, opacity: 0.86, marginBottom: 6 }}>
+            {feature.eyebrow}
+          </div>
+          <div style={{ color: '#fff', fontSize: 20, fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1.05 }}>
+            {feature.title}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ fontSize: 10, color: MUTED, fontWeight: 700 }}>Tripverse</div>
+            <div style={{ fontSize: 14, color: DARK, fontWeight: 800, letterSpacing: '-0.03em' }}>Smart planning</div>
+          </div>
+          <div style={{ background: `color-mix(in srgb, ${feature.accent} 10%, transparent)`, color: feature.accent, borderRadius: 99, padding: '7px 10px', fontSize: 10, fontWeight: 800 }}>
+            Live
+          </div>
+        </div>
+
+        {feature.bullets.map((bullet, i) => (
+          <div key={bullet} style={{ background: CARD, border: `1px solid ${BDL}`, borderRadius: 14, padding: '10px 11px', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 22, height: 22, borderRadius: '50%', background: i === 0 ? feature.accent : BLBG, color: i === 0 ? '#fff' : BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800 }}>
+              {i + 1}
+            </div>
+            <div style={{ fontSize: 11, color: DARK, fontWeight: 700, lineHeight: 1.25 }}>
+              {bullet}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function ProductShowcase() {
+  const features: ShowcaseFeature[] = [
+    {
+      title: 'Personalized route generator',
+      description: 'Build realistic itineraries around your dates, budget, pace, and favorite destinations.',
+      image: IMGS.japan,
+      eyebrow: 'Route builder',
+      bullets: ['Day-by-day route', 'Costs and transport', 'Instant adjustments'],
+      accent: BLUE,
+    },
+    {
+      title: 'Community trips',
+      description: 'Explore real routes from other travelers and adapt their best ideas to your own style.',
+      image: IMGS.travelerGroup,
+      eyebrow: 'Community trips',
+      bullets: ['Shared itineraries', 'Traveler tips', 'Ideas ready to save'],
+      accent: '#34C759',
+    },
+    {
+      title: 'City activity recommendations',
+      description: 'Find activities, neighborhoods, food spots, and local experiences for every stop.',
+      image: IMGS.city,
+      eyebrow: 'City guide',
+      bullets: ['Nearby activities', 'Best times to go', 'Local experiences'],
+      accent: '#FF9500',
+    },
+    {
+      title: 'Safety checklist',
+      description: 'Keep documents, insurance, health notes, alerts, and trip prep under control.',
+      image: IMGS.mapPlanning,
+      eyebrow: 'Safety checklist',
+      bullets: ['Important documents', 'Alerts and prep', 'Before-you-go tasks'],
+      accent: '#AF52DE',
+    },
+  ]
+  const [activeFeature, setActiveFeature] = useState(0)
+  const [featureTouched, setFeatureTouched] = useState(false)
+  const selected = features[activeFeature]
+
+  useEffect(() => {
+    if (featureTouched) return
+
+    const timer = window.setInterval(() => {
+      setActiveFeature(current => (current + 1) % features.length)
+    }, 5000)
+
+    return () => window.clearInterval(timer)
+  }, [featureTouched, features.length])
+
+  return (
+    <section id="capabilities" style={{ background: BG, padding: '0 24px 32px' }}>
+      <div style={{ maxWidth: 1180, margin: '0 auto' }}>
+        <Reveal>
+          <div className="product-showcase-card" style={{
+            background: CARD,
+            border: `1px solid ${BDL}`,
+            borderRadius: 32,
+            boxShadow: '0 8px 40px rgba(0,0,0,0.06)',
+            minHeight: 720,
+            padding: '56px 36px 48px',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+          }}>
+            <h2 style={{ fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 800, color: DARK, letterSpacing: '-0.04em', lineHeight: 1.12, textAlign: 'center', margin: '0 0 34px' }}>
+              What can you do with Tripverse?
+            </h2>
+
+            <div className="product-showcase-grid" style={{ display: 'grid', gridTemplateColumns: '0.86fr 1fr', gap: 34, alignItems: 'center', maxWidth: 900, margin: '0 auto' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', paddingRight: 10 }}>
+                <div key={activeFeature} style={{ animation: 'showcase-phone-swap 0.7s cubic-bezier(0.16, 1, 0.3, 1) both' }}>
+                  <Phone width={265}>
+                    <ShowcasePhoneScreen feature={selected} />
+                  </Phone>
+                </div>
+              </div>
+
+              <div className="product-selector-list" style={{ display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 440 }}>
+                {features.map((feature, i) => {
+                  const isActive = activeFeature === i
+
+                  return (
+                    <button
+                      key={feature.title}
+                      type="button"
+                      className="hover-scale product-selector"
+                      onClick={() => {
+                        setFeatureTouched(true)
+                        setActiveFeature(i)
+                      }}
+                      style={{
+                        textAlign: 'left',
+                        background: isActive ? BLUE : '#F7F7FB',
+                        border: `1px solid ${isActive ? BLUE : BDL}`,
+                        borderRadius: 18,
+                        padding: '18px 20px',
+                        cursor: 'pointer',
+                        boxShadow: isActive ? '0 12px 30px rgba(2,134,253,0.22)' : 'none',
+                        transition: 'background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.22s ease',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                        <h3 style={{ fontSize: 18, fontWeight: 800, color: isActive ? '#fff' : DARK, letterSpacing: '-0.035em', lineHeight: 1.15, margin: 0 }}>
+                          {feature.title}
+                        </h3>
+                      </div>
+                      <p style={{ fontSize: 14, color: isActive ? 'rgba(255,255,255,0.82)' : MUTED, lineHeight: 1.5, margin: 0 }}>
+                        {feature.description}
+                      </p>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
 function AccentCallout() {
   return (
     <section style={{ background: BG, padding: '0 24px 32px' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+      <div style={{ maxWidth: 1180, margin: '0 auto' }}>
         <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: 24 }}>
           <Reveal>
-            <div style={{ background: CARD, borderRadius: 32, border: `1px solid ${BDL}`, boxShadow: '0 8px 40px rgba(0,0,0,0.05)', height: 330, padding: '38px 34px 34px', display: 'flex', flexDirection: 'column' }}>
+            <div className="accent-card" style={{ background: CARD, borderRadius: 32, border: `1px solid ${BDL}`, boxShadow: '0 8px 40px rgba(0,0,0,0.05)', height: 360, padding: '42px 34px 34px', display: 'flex', flexDirection: 'column' }}>
               <div style={{ height: 142, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, height: 120, width: '100%', maxWidth: 430 }}>
                 {[
                   ['Tripverse', 118, BLUE],
-                  ['Generic AI', 74, SEC],
-                  ['Manual plan', 88, SEC],
-                  ['Travel blog', 66, SEC],
+                  ['Generic AI', 58, SEC],
+                  ['Manual plan', 74, SEC],
+                  ['Travel blog', 50, SEC],
                 ].map(([name, height, color]) => (
                   <div key={name} style={{ flex: 1 }}>
-                    <div className="hover-scale" style={{ height: Number(height), borderRadius: 12, background: color as string, opacity: name === 'Tripverse' ? 0.85 : 1 }} />
+                    <div className="hover-scale accent-bar" style={{ height: Number(height), borderRadius: 12, background: color as string, opacity: name === 'Tripverse' ? 0.85 : 1 }} />
                     <div style={{ fontSize: 12, color: MUTED, marginTop: 8, textAlign: 'center' }}>{name}</div>
                   </div>
                 ))}
                 </div>
               </div>
-              <div style={{ textAlign: 'center', marginTop: 'auto' }}>
+              <div className="small-card-copy" style={{ textAlign: 'center', marginTop: 'auto' }}>
                 <h3 style={{ fontSize: 25, fontWeight: 800, color: DARK, letterSpacing: '-0.04em', lineHeight: 1.1, margin: '0 0 8px' }}>
                   Best-in-class planning assistant
                 </h3>
@@ -1088,17 +1411,17 @@ function AccentCallout() {
           </Reveal>
 
           <Reveal delay={120}>
-            <div style={{ background: CARD, borderRadius: 32, border: `1px solid ${BDL}`, boxShadow: '0 8px 40px rgba(0,0,0,0.05)', height: 330, padding: '38px 34px 34px', display: 'flex', flexDirection: 'column' }}>
+            <div className="accent-card" style={{ background: CARD, borderRadius: 32, border: `1px solid ${BDL}`, boxShadow: '0 8px 40px rgba(0,0,0,0.05)', height: 360, padding: '42px 34px 34px', display: 'flex', flexDirection: 'column' }}>
               <div style={{ height: 142, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 14, width: '100%', maxWidth: 380 }}>
-                {['Will it fit my budget?', 'Can I add one beach stop?', 'What train should I book?'].map(q => (
-                  <div key={q} className="hover-scale" style={{ background: '#EEF4FF', color: BLUE, borderRadius: 99, padding: '12px 18px', fontSize: 15, fontWeight: 700 }}>
+                <div className="suggestion-chip-group" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 12, width: '100%', maxWidth: 420 }}>
+                {['Will it fit my budget?', 'Can I add one beach stop?', 'What train should I book?'].map((q, i) => (
+                  <div key={q} className="hover-scale suggestion-chip" style={{ background: i === 1 ? BLUE : '#EEF4FF', color: i === 1 ? '#fff' : BLUE, borderRadius: 99, padding: '12px 18px', fontSize: 15, fontWeight: 700, width: 'fit-content', boxShadow: i === 1 ? '0 8px 24px rgba(2,134,253,0.22)' : 'none' }}>
                     {q}
                   </div>
                 ))}
                 </div>
               </div>
-              <div style={{ textAlign: 'center', marginTop: 'auto' }}>
+              <div className="small-card-copy" style={{ textAlign: 'center', marginTop: 'auto' }}>
                 <h3 style={{ fontSize: 25, fontWeight: 800, color: DARK, letterSpacing: '-0.04em', lineHeight: 1.1, margin: '0 0 8px' }}>
                   Suggestions personalized to you
                 </h3>
@@ -1117,9 +1440,9 @@ function AccentCallout() {
 function FinalCTA() {
   return (
     <section id="cta" style={{ background: BG, padding: '0 24px 64px' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+      <div style={{ maxWidth: 1180, margin: '0 auto' }}>
         <Reveal>
-          <div style={{ position: 'relative', borderRadius: 32, overflow: 'hidden', minHeight: 360, boxShadow: '0 8px 40px rgba(0,0,0,0.06)' }}>
+          <div className="final-image-card" style={{ position: 'relative', borderRadius: 32, overflow: 'hidden', minHeight: 360, boxShadow: '0 8px 40px rgba(0,0,0,0.06)' }}>
             <Img src={IMGS.heroAlt} h={360} r={0} alt="Travel planning" />
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(10,10,10,0.40), rgba(10,10,10,0.05))' }} />
             <div style={{ position: 'absolute', left: 36, bottom: 36, maxWidth: 420 }}>
@@ -1130,12 +1453,12 @@ function FinalCTA() {
           </div>
         </Reveal>
 
-        <Reveal delay={120} style={{ maxWidth: 560, margin: '44px auto 0', textAlign: 'left' }}>
+        <Reveal delay={120} className="final-copy" style={{ maxWidth: 720, margin: '44px auto 0', textAlign: 'center' }}>
           <h3 style={{ fontSize: 'clamp(30px, 4vw, 48px)', fontWeight: 800, color: DARK, letterSpacing: '-0.05em', lineHeight: 1.05, margin: '0 0 24px' }}>
             Follow your route from idea to booked trip.
           </h3>
           <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center' }}>
-            <a href="#" style={{
+            <a href="#" className="app-store-cta" style={{
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 12,
               background: '#0286fd', color: '#fff',
               borderRadius: 99, padding: '18px 48px',
@@ -1169,21 +1492,13 @@ function FinalCTA() {
 export default function HomePage() {
   return (
     <>
-      <style>{`
-        .hover-scale {
-          transition: transform 0.22s ease, box-shadow 0.22s ease;
-          will-change: transform;
-        }
-        .hover-scale:hover {
-          transform: scale(1.035);
-        }
-      `}</style>
       <Hero />
       <Features />
       <ProofStrip />
       <Destinations />
       <StatsCallout />
       <Testimonials />
+      <ProductShowcase />
       <AccentCallout />
       <FinalCTA />
     </>

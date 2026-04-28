@@ -13,7 +13,7 @@ export default function Footer() {
     >
       <div
         className="flex flex-wrap justify-between items-center gap-3"
-        style={{ maxWidth: 1040, margin: '0 auto', width: '100%' }}
+        style={{ maxWidth: 1180, margin: '0 auto', width: '100%' }}
       >
         {/* Brand */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

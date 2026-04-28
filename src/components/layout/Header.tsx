@@ -1,15 +1,16 @@
 'use client'
 
 const NAV_LINKS = [
-  { label: 'Features',     href: '#features'    },
-  { label: 'How it works', href: '#how-it-works' },
-  { label: 'Pricing',      href: '#pricing'      },
+  { label: 'Features',     href: '#features' },
+  { label: 'Routes',       href: '#destinations' },
+  { label: 'Reviews',      href: '#testimonials' },
+  { label: 'Capabilities', href: '#capabilities' },
 ]
 
 function AppStoreButton() {
   return (
     <a
-      href="#download"
+      href="#cta"
       style={{
         display:        'inline-flex',
         alignItems:     'center',
@@ -59,7 +60,7 @@ export default function Header() {
     >
       <div
         className="flex items-center justify-between"
-        style={{ maxWidth: 1040, margin: '0 auto', width: '100%' }}
+        style={{ maxWidth: 1180, margin: '0 auto', width: '100%' }}
       >
         {/* Brand */}
         <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', flexShrink: 0 }}>

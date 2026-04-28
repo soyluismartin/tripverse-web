@@ -13,6 +13,20 @@ export const IMGS = {
   adventure:     `${BASE}/photo-1464822759023-fed622ff2c3b?w=900&q=80&auto=format&fit=crop`,    // mountain hike
   beach:         `${BASE}/photo-1507525428034-b723cf961d3e?w=900&q=80&auto=format&fit=crop`,    // tropical beach
   city:          `${BASE}/photo-1480714378408-67cf0d13bc1b?w=900&q=80&auto=format&fit=crop`,    // city aerial
+  london:        `${BASE}/photo-1513635269975-59663e0ac1ad?w=900&q=80&auto=format&fit=crop`,    // London
+  rome:          `${BASE}/photo-1552832230-c0197dd311b5?w=900&q=80&auto=format&fit=crop`,       // Rome
+  barcelona:     `${BASE}/photo-1539037116277-4db20889f2d4?w=900&q=80&auto=format&fit=crop`,    // Barcelona
+  santorini:     `${BASE}/photo-1570077188670-e3a8d69ac5ff?w=900&q=80&auto=format&fit=crop`,    // Santorini
+  istanbul:      `${BASE}/photo-1524231757912-21f4fe3a7200?w=900&q=80&auto=format&fit=crop`,    // Istanbul
+  marrakech:     `${BASE}/photo-1597212618440-806262de4f6b?w=900&q=80&auto=format&fit=crop`,    // Marrakech
+  rio:           `${BASE}/photo-1483729558449-99ef09a8c325?w=900&q=80&auto=format&fit=crop`,    // Rio de Janeiro
+  singapore:     `${BASE}/photo-1525625293386-3f8f99389edd?w=900&q=80&auto=format&fit=crop`,    // Singapore
+  capetown:      `${BASE}/photo-1580060839134-75a5edca2e99?w=900&q=80&auto=format&fit=crop`,    // Cape Town
+  venice:        `${BASE}/photo-1523906834658-6e24ef2386f9?w=900&q=80&auto=format&fit=crop`,    // Venice
+  iceland:       `${BASE}/photo-1504829857797-ddff29c27927?w=900&q=80&auto=format&fit=crop`,    // Iceland
+  dubai:         `${BASE}/photo-1512453979798-5ea266f8880c?w=900&q=80&auto=format&fit=crop`,    // Dubai
+  sydney:        `${BASE}/photo-1506973035872-a4ec16b8e8d9?w=900&q=80&auto=format&fit=crop`,    // Sydney
+  mexicoCity:    `${BASE}/photo-1518105779142-d975f22f1b0a?w=900&q=80&auto=format&fit=crop`,    // Mexico City
 
   // Travelers / people
   traveler1:     `${BASE}/photo-1530789253388-582c481c54b0?w=700&q=80&auto=format&fit=crop`,    // backpacker
