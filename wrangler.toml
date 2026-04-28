@@ -1,7 +1,8 @@
 name = "tripverse-web"
 pages_build_output_dir = ".open-next"
-compatibility_date = "2024-09-23"
-compatibility_flags = ["nodejs_compat"]
+# OpenNext recomienda fecha ≥ 2024-09-23 y flags nodejs_compat + global_fetch (plantilla oficial).
+compatibility_date = "2024-12-30"
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
 
 [vars]
 NEXTJS_ENV = "production"

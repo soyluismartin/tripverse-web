@@ -16,5 +16,6 @@ if (!existsSync(src)) {
   process.exit(1)
 }
 
+// Copia binaria: mismo directorio `.open-next/`, imports relativos tipo `./chunks/*` siguen resolviendo igual que desde worker.js.
 copyFileSync(src, dest)
 console.log(`cf-pages-prep: ${src} → ${dest}`)
