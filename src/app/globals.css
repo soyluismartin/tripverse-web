@@ -4,6 +4,44 @@
 	--font-sans: var(--font-inter);
 }
 
+/* ── Design tokens — mirrors DesignSystem.swift ─────────────────────────────── */
+:root {
+	/* Backgrounds (rBg / rCard / rSurface2) */
+	--color-bg:        #F2F2F7;
+	--color-surface:   #FFFFFF;
+	--color-surface-2: #E9E9EF;
+
+	/* Borders (rBorder / rBorderMid) */
+	--color-border:    #E5E5EA;
+	--color-border-md: #C7C7CC;
+
+	/* Text (rText / rSub) */
+	--color-text:      #0A0A0A;
+	--color-muted:     #8E8E93;
+
+	/* Accent — web blue (not in Swift DS, used across landing) */
+	--color-accent:    #0286fd;
+	--color-accent-bg: #E8F3FF;
+
+	/* Status */
+	--color-success:    #16A34A;
+	--color-success-bg: #DCFCE7;
+	--color-error:      #DC2626;
+	--color-error-bg:   #FEE2E2;
+
+	/* Shadows (cardShadow / subtleShadow from Swift) */
+	--shadow-card:   0 4px 16px rgba(0, 0, 0, 0.07);
+	--shadow-subtle: 0 2px 8px  rgba(0, 0, 0, 0.10);
+	--shadow-glow:   0 8px 32px rgba(2, 134, 253, 0.20);
+
+	/* Typography */
+	--letter-spacing-heading: -0.04em;
+	--letter-spacing-label:    0.1em;
+	--line-height-heading:     1.05;
+	--line-height-body:        1.7;
+}
+
+/* ── Base reset ─────────────────────────────────────────────────────────────── */
 *,
 *::before,
 *::after {
@@ -16,8 +54,8 @@ html {
 
 body {
 	margin: 0;
-	background-color: #f2f2f7;
-	color: #0a0a0a;
+	background-color: var(--color-bg);
+	color: var(--color-text);
 	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont,
 		"Helvetica Neue", sans-serif;
 	-webkit-font-smoothing: antialiased;
@@ -35,6 +73,6 @@ a {
 	background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-	background: #c7c7cc;
+	background: #C7C7CC;
 	border-radius: 3px;
 }

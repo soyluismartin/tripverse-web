@@ -1,39 +1,36 @@
 'use client'
 
-import { useState, useEffect, useRef, ReactNode } from 'react'
+import { useEffect, useRef, useState, ReactNode } from 'react'
+import Image from 'next/image'
+import { IMGS } from '@/lib/images'
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
-const BG     = '#F2F2F7'
-const CARD   = '#FFFFFF'
-const SEC    = '#E9E9EF'
-const DARK   = '#0A0A0A'
-const MUTED  = '#8E8E93'
-const BDL    = '#E5E5EA'
-const BDM    = '#C7C7CC'
-const BLUE   = '#0286fd'
-const BLBG   = '#E8F3FF'
-const SHADOW = '0 4px 16px rgba(0,0,0,0.07)'
+const BG    = '#F2F2F7'
+const CARD  = '#FFFFFF'
+const SEC   = '#E9E9EF'
+const DARK  = '#0A0A0A'
+const MUTED = '#8E8E93'
+const BDL   = '#E5E5EA'
+const BDM   = '#C7C7CC'
+const BLUE  = '#0286fd'
+const BLBG  = '#E8F3FF'
+const SHADOW = '0 4px 20px rgba(0,0,0,0.08)'
 
 // ── Scroll reveal ─────────────────────────────────────────────────────────────
-function useReveal(threshold = 0.1) {
+function useReveal(t = 0.1) {
   const ref = useRef<HTMLDivElement>(null)
-  const [visible, setVisible] = useState(false)
+  const [v, setV] = useState(false)
   useEffect(() => {
-    const el = ref.current
-    if (!el) return
+    const el = ref.current; if (!el) return
     const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect() } },
-      { threshold }
+      ([e]) => { if (e.isIntersecting) { setV(true); obs.disconnect() } }, { threshold: t }
     )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [threshold])
-  return { ref, visible }
+    obs.observe(el); return () => obs.disconnect()
+  }, [t])
+  return { ref, visible: v }
 }
 
-function Reveal({
-  children, delay = 0, y = 20, className = '', style,
-}: {
+function Reveal({ children, delay = 0, y = 18, className = '', style }: {
   children: ReactNode; delay?: number; y?: number
   className?: string; style?: React.CSSProperties
 }) {
@@ -50,528 +47,545 @@ function Reveal({
   )
 }
 
-// ── Phone mockup screens ──────────────────────────────────────────────────────
-function AppRouteScreen() {
+// ── Section nav dots (right side) ─────────────────────────────────────────────
+const SECTION_IDS = ['hero', 'features', 'ai-chat', 'destinations', 'testimonials', 'cta']
+
+function NavDots() {
+  const [active, setActive] = useState(0)
+  useEffect(() => {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const i = SECTION_IDS.indexOf(e.target.id)
+          if (i >= 0) setActive(i)
+        }
+      })
+    }, { threshold: 0.5 })
+    SECTION_IDS.forEach(id => {
+      const el = document.getElementById(id)
+      if (el) obs.observe(el)
+    })
+    return () => obs.disconnect()
+  }, [])
   return (
-    <div style={{ width: '100%', height: '100%', background: '#F8F8FB', padding: '8px 7px 0', display: 'flex', flexDirection: 'column', gap: 5, overflow: 'hidden' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 3px' }}>
-        <span style={{ fontSize: 8, color: MUTED }}>9:41</span>
-        <span style={{ fontSize: 8, color: MUTED }}>●●● 100%</span>
-      </div>
-      <div style={{ fontSize: 10, fontWeight: 700, color: DARK, padding: '0 3px' }}>My Routes</div>
-      {[
-        { dest: 'Tokyo → Kyoto → Osaka', days: '7 days', tag: 'Japan' },
-        { dest: 'Paris → Lyon → Nice',   days: '5 days', tag: 'France' },
-        { dest: 'NYC → Boston → Philly', days: '4 days', tag: 'USA' },
-      ].map((r, i) => (
-        <div key={i} style={{ background: '#fff', borderRadius: 9, padding: '7px 8px', border: `1px solid ${BDL}`, flexShrink: 0, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
-            <span style={{ fontSize: 9, fontWeight: 700, color: DARK }}>{r.tag}</span>
-            <span style={{ fontSize: 7, background: BLBG, color: BLUE, padding: '1px 6px', borderRadius: 99, fontWeight: 600 }}>{r.days}</span>
+    <div style={{
+      position: 'fixed', right: 24, top: '50%', transform: 'translateY(-50%)',
+      display: 'flex', flexDirection: 'column', gap: 10, zIndex: 200,
+    }}>
+      {SECTION_IDS.map((id, i) => (
+        <button
+          key={id}
+          onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })}
+          style={{
+            width: active === i ? 8 : 6,
+            height: active === i ? 8 : 6,
+            borderRadius: '50%',
+            background: active === i ? BLUE : BDM,
+            border: 'none', cursor: 'pointer', padding: 0,
+            transition: 'all 0.25s ease',
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
+// ── Phone mockup ──────────────────────────────────────────────────────────────
+function Phone({ label = 'screen', width = 220, dark = false, children }: { label?: string; width?: number; dark?: boolean; children?: ReactNode }) {
+  const h   = Math.round(width * 2.1)
+  const r   = Math.round(width * 0.13)
+  const pad = 6
+  return (
+    <div style={{
+      position: 'relative', width, height: h, flexShrink: 0,
+      borderRadius: r, background: '#1C1C1E',
+      boxShadow: '0 24px 64px rgba(0,0,0,0.28), 0 4px 12px rgba(0,0,0,0.18)',
+    }}>
+      {/* Screen */}
+      <div style={{
+        position: 'absolute', top: pad + 18, left: pad, right: pad, bottom: pad + 16,
+        borderRadius: r - pad + 1, overflow: 'hidden',
+        background: dark ? '#12122A' : CARD,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        {children ?? (
+          <div style={{
+            width: '100%', height: '100%',
+            background: dark
+              ? 'repeating-linear-gradient(135deg,#1a1a2e,#1a1a2e 1px,#1e1e36 1px,#1e1e36 10px)'
+              : 'repeating-linear-gradient(135deg,#e8eef6,#e8eef6 1px,#f0f4fa 1px,#f0f4fa 10px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{ fontSize: 9, color: dark ? '#4466aa' : '#8899aa', fontFamily: 'monospace', textAlign: 'center', padding: 8 }}>{label}</span>
           </div>
-          <div style={{ fontSize: 7.5, color: MUTED }}>{r.dest}</div>
+        )}
+      </div>
+      {/* Notch */}
+      <div style={{
+        position: 'absolute', top: pad + 4, left: '50%', transform: 'translateX(-50%)',
+        width: 36, height: 10, background: '#111', borderRadius: 5, zIndex: 3,
+      }}/>
+      {/* Home bar */}
+      <div style={{
+        position: 'absolute', bottom: pad + 4, left: '50%', transform: 'translateX(-50%)',
+        width: 28, height: 4, background: '#3A3A3C', borderRadius: 2,
+      }}/>
+      {/* Frame border overlay */}
+      <div style={{
+        position: 'absolute', inset: 0, borderRadius: r,
+        boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.08)',
+        pointerEvents: 'none', zIndex: 4,
+      }}/>
+    </div>
+  )
+}
+
+function MiniRouteScreen() {
+  return (
+    <div style={{ width: '100%', height: '100%', background: '#F8F8FB', padding: '18px 14px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ fontSize: 10, color: MUTED }}>9:41</div>
+        <div style={{ fontSize: 10, color: MUTED }}>100%</div>
+      </div>
+      <div>
+        <div style={{ fontSize: 18, fontWeight: 800, color: DARK, letterSpacing: '-0.04em' }}>Japan Route</div>
+        <div style={{ fontSize: 11, color: MUTED, marginTop: 3 }}>7 days · Culture + food</div>
+      </div>
+      <div style={{ height: 90, borderRadius: 14, overflow: 'hidden', position: 'relative' }}>
+        <Image src={IMGS.japan} alt="Japan" fill style={{ objectFit: 'cover' }} sizes="180px" />
+      </div>
+      {[
+        ['Tokyo', '3 days', BLUE],
+        ['Kyoto', '2 days', '#C7C7CC'],
+        ['Osaka', '2 days', '#C7C7CC'],
+      ].map(([city, days, color], i) => (
+        <div key={city} style={{ background: CARD, borderRadius: 12, padding: '10px 12px', border: `1px solid ${BDL}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 22, height: 22, borderRadius: '50%', background: color, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700 }}>{i + 1}</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: DARK }}>{city}</div>
+            <div style={{ fontSize: 9, color: MUTED }}>{days}</div>
+          </div>
         </div>
       ))}
+      <div style={{ marginTop: 'auto', background: BLBG, borderRadius: 12, padding: '10px 12px', display: 'flex', justifyContent: 'space-between' }}>
+        <span style={{ fontSize: 10, color: BLUE, fontWeight: 700 }}>Total estimate</span>
+        <span style={{ fontSize: 11, color: DARK, fontWeight: 800 }}>$1,240</span>
+      </div>
     </div>
   )
 }
 
-function AppGuideScreen() {
+function DestinationPickerScreen() {
+  const destinations = [
+    { name: 'Tokyo', sub: 'Culture · Food', src: IMGS.japan },
+    { name: 'Paris', sub: 'Art · Romance', src: IMGS.europe },
+    { name: 'Bali', sub: 'Beach · Relax', src: IMGS.beach },
+    { name: 'Alps', sub: 'Adventure · Nature', src: IMGS.adventure },
+    { name: 'New York', sub: 'City · Food', src: IMGS.city },
+  ]
+
   return (
-    <div style={{ width: '100%', height: '100%', background: '#F8F8FB', padding: '8px 7px 0', display: 'flex', flexDirection: 'column', gap: 5, overflow: 'hidden' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 3px' }}>
-        <span style={{ fontSize: 8, color: MUTED }}>9:41</span>
-        <span style={{ fontSize: 8, color: MUTED }}>●●● 100%</span>
+    <div style={{ width: '100%', height: '100%', background: '#F8F8FB', padding: '18px 12px', overflow: 'hidden' }}>
+      <style>{`
+        @keyframes destination-scroll {
+          from { transform: translateY(0); }
+          to { transform: translateY(-46%); }
+        }
+      `}</style>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+        <span style={{ fontSize: 10, color: MUTED }}>9:41</span>
+        <span style={{ fontSize: 10, color: MUTED }}>100%</span>
       </div>
-      <div style={{ padding: '0 3px' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: DARK }}>Tokyo</div>
-        <div style={{ fontSize: 8, color: MUTED, marginTop: 1 }}>Day 1–3 · Guide</div>
+      <div style={{ marginBottom: 14 }}>
+        <div style={{ fontSize: 18, fontWeight: 800, color: DARK, letterSpacing: '-0.04em', lineHeight: 1.1 }}>
+          Where next?
+        </div>
+        <div style={{ fontSize: 10, color: MUTED, marginTop: 4 }}>
+          Pick destinations for your route
+        </div>
       </div>
-      <div style={{ height: 52, borderRadius: 8, flexShrink: 0, background: 'repeating-linear-gradient(45deg,#cdd8e8,#cdd8e8 1px,#dce5f0 1px,#dce5f0 6px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontSize: 7, color: '#8899aa' }}>map</span>
+
+      <div style={{ height: 'calc(100% - 80px)', overflow: 'hidden', position: 'relative' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, animation: 'destination-scroll 24s linear infinite' }}>
+          {[...destinations, ...destinations].map((d, i) => (
+            <div key={`${d.name}-${i}`} style={{
+              background: CARD,
+              border: `1px solid ${BDL}`,
+              borderRadius: 16,
+              padding: 8,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+            }}>
+              <div style={{ width: 54, height: 54, borderRadius: 12, overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
+                <Image src={d.src} alt={d.name} fill style={{ objectFit: 'cover' }} sizes="54px" />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: DARK }}>{d.name}</div>
+                <div style={{ fontSize: 10, color: MUTED, marginTop: 2 }}>{d.sub}</div>
+              </div>
+              <div style={{
+                width: 22,
+                height: 22,
+                borderRadius: '50%',
+                background: i % 3 === 0 ? BLUE : BLBG,
+                color: i % 3 === 0 ? '#fff' : BLUE,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 13,
+                fontWeight: 800,
+              }}>
+                +
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 28, background: 'linear-gradient(to bottom, #F8F8FB 0%, rgba(248,248,251,0) 100%)' }} />
+        <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 38, background: 'linear-gradient(to top, #F8F8FB 0%, rgba(248,248,251,0) 100%)' }} />
       </div>
-      {['Shibuya Crossing', 'Senso-ji Temple', 'Shinjuku Garden', 'Tsukiji Market'].map((p, i) => (
-        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#fff', borderRadius: 7, padding: '5px 7px', border: `1px solid ${BDL}`, flexShrink: 0 }}>
-          <div style={{ width: 5, height: 5, borderRadius: '50%', background: i === 0 ? BLUE : BDM, flexShrink: 0 }} />
-          <span style={{ fontSize: 8, color: DARK }}>{p}</span>
+    </div>
+  )
+}
+
+function MiniChatScreen() {
+  return (
+    <div style={{ width: '100%', height: '100%', background: '#F8F8FB', padding: '18px 12px', display: 'flex', flexDirection: 'column', gap: 9 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ fontSize: 10, color: MUTED }}>9:41</div>
+        <div style={{ fontSize: 10, color: MUTED }}>100%</div>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+        <div style={{ width: 26, height: 26, borderRadius: '50%', background: BLBG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13 }}>✈️</div>
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 800, color: DARK }}>Tripverse AI</div>
+          <div style={{ fontSize: 9, color: BLUE }}>Planning assistant</div>
+        </div>
+      </div>
+      {[
+        ['ai', 'I found the best 10-day Japan route for culture and food.'],
+        ['user', 'Can you add Nara as a day trip?'],
+        ['ai', 'Done. I updated day 4, transport, costs, and the Kyoto guide.'],
+      ].map(([from, text]) => (
+        <div key={text} style={{
+          alignSelf: from === 'user' ? 'flex-end' : 'flex-start',
+          maxWidth: '84%',
+          background: from === 'user' ? BLUE : CARD,
+          color: from === 'user' ? '#fff' : DARK,
+          borderRadius: from === 'user' ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
+          padding: '9px 10px',
+          fontSize: 10,
+          lineHeight: 1.45,
+          border: from === 'user' ? 'none' : `1px solid ${BDL}`,
+        }}>
+          {text}
         </div>
       ))}
-    </div>
-  )
-}
-
-function PhoneFrame({ screen = 'route', width = 240, style: sx = {} }: {
-  screen?: 'route' | 'guide'; width?: number; style?: React.CSSProperties
-}) {
-  const h = Math.round(width * 2.1)
-  const r = Math.round(width * 0.125)
-  const b = 5
-  return (
-    <div style={{ position: 'relative', width, height: h, flexShrink: 0, ...sx }}>
-      <svg width={width} height={h} viewBox={`0 0 ${width} ${h}`} style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 2 }}>
-        <rect x="0" y="0" width={width} height={h} rx={r} fill="#1C1C1E" />
-        <rect x={b} y={b} width={width - b * 2} height={h - b * 2} rx={r - b + 2} fill="none" stroke="#2C2C2E" strokeWidth="0.5" />
-        <rect x={width / 2 - 19} y={b + 7} width="38" height="12" rx="6" fill="#111" />
-        <rect x={width / 2 - 17} y={h - b - 12} width="34" height="4" rx="2" fill="#3A3A3C" />
-        <rect x="-1" y={h * 0.27} width="3" height="22" rx="1.5" fill="#2A2A2C" />
-        <rect x="-1" y={h * 0.36} width="3" height="22" rx="1.5" fill="#2A2A2C" />
-        <rect x={width - 2} y={h * 0.32} width="3" height="30" rx="1.5" fill="#2A2A2C" />
-      </svg>
-      <div style={{ position: 'absolute', top: b + 24, left: b, right: b, bottom: b + 20, borderRadius: r - b + 1, overflow: 'hidden', background: BG, zIndex: 1 }}>
-        {screen === 'guide' ? <AppGuideScreen /> : <AppRouteScreen />}
+      <div style={{ marginTop: 'auto', background: CARD, border: `1px solid ${BDL}`, borderRadius: 99, padding: '9px 12px', color: MUTED, fontSize: 10 }}>
+        Ask anything about your trip...
       </div>
     </div>
   )
 }
 
-// ── Logo ──────────────────────────────────────────────────────────────────────
-function HexLogo({ size = 22 }: { size?: number }) {
+// ── Image wrapper ─────────────────────────────────────────────────────────────
+function Img({ src, h = 400, r = 24, alt = '' }: { src: string; h?: number; r?: number; alt?: string; label?: string; tint?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <polygon points="12,2 22,7.5 22,16.5 12,22 2,16.5 2,7.5" fill={BLUE} fillOpacity={0.12} />
-      <polygon points="12,2 22,7.5 22,16.5 12,22 2,16.5 2,7.5" stroke={BLUE} strokeWidth="1.6" fill="none" />
-      <circle cx="12" cy="12" r="2.5" fill={BLUE} />
-    </svg>
-  )
-}
-
-// ── Feature icons ─────────────────────────────────────────────────────────────
-function FIcon({ children, size = 20 }: { children: ReactNode; size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 20 20" fill="none"
-      stroke={BLUE} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      {children}
-    </svg>
-  )
-}
-
-const FICONS: Record<string, ReactNode> = {
-  route: (
-    <FIcon>
-      <circle cx="4" cy="4" r="2.2" fill={BLUE} stroke="none" />
-      <circle cx="16" cy="16" r="2.2" fill={BLUE} stroke="none" />
-      <path d="M4 6.2 C4 10 10 10 10 14M16 13.8 L16 10" strokeDasharray="2.5 2" />
-    </FIcon>
-  ),
-  guide: (
-    <FIcon>
-      <rect x="3.5" y="2" width="13" height="16" rx="2.5" />
-      <line x1="7" y1="6.5" x2="13" y2="6.5" />
-      <line x1="7" y1="10" x2="13" y2="10" />
-      <line x1="7" y1="13.5" x2="10" y2="13.5" />
-    </FIcon>
-  ),
-  cost: (
-    <FIcon>
-      <rect x="1.5" y="5.5" width="17" height="11" rx="2.5" />
-      <line x1="1.5" y1="9.5" x2="18.5" y2="9.5" />
-      <circle cx="5.5" cy="13" r="1.5" fill={BLUE} stroke="none" />
-    </FIcon>
-  ),
-  community: (
-    <FIcon>
-      <circle cx="7.5" cy="7.5" r="2.8" />
-      <circle cx="13.5" cy="7.5" r="2.8" />
-      <path d="M1.5 17 C1.5 13.5 4 12 7.5 12" />
-      <path d="M13.5 12 C17 12 18.5 13.5 18.5 17" />
-    </FIcon>
-  ),
-  profile: (
-    <FIcon>
-      <circle cx="10" cy="6.5" r="3.2" />
-      <path d="M3.5 17.5 C3.5 13.8 6.5 12 10 12 C13.5 12 16.5 13.8 16.5 17.5" />
-    </FIcon>
-  ),
-}
-
-function FeatureIcon({ type, size = 48 }: { type: string; size?: number }) {
-  return (
-    <div style={{ width: size, height: size, background: BLBG, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-      {FICONS[type]}
+    <div style={{ height: h, borderRadius: r, overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
+      <Image src={src} alt={alt} fill style={{ objectFit: 'cover' }} sizes="(max-width:768px) 100vw, 50vw" />
     </div>
   )
 }
 
-// ── Data ──────────────────────────────────────────────────────────────────────
-const FEATURES = [
-  { icon: 'route',     title: 'A complete route, not just a list of places',   body: "Tell us where you want to go, how long you have, and what kind of traveler you are. Tripverse builds a day-by-day route with real transport connections, layovers, and timing — so you can actually follow it." },
-  { icon: 'guide',     title: 'Your full trip guide, generated instantly',      body: 'Every destination comes with city highlights, top activities, local tips, and a cost breakdown. Not generic content — a guide built specifically for your trip.' },
-  { icon: 'cost',      title: "Know exactly what you'll spend",                 body: "Tripverse estimates your total transport cost before you book anything. See the full picture — by segment, by city, by trip — so you travel with no surprises." },
-  { icon: 'community', title: 'Discover trips from real travelers',             body: "Browse routes created by other Tripverse users. Filter by style, destination, or budget. Like the ones that inspire you. Share yours when you're ready." },
-  { icon: 'profile',   title: 'Built around how you travel',                   body: 'Solo or with family. Budget or luxury. Fast-paced or relaxed. Tripverse learns your travel style during onboarding and uses it every time you plan.' },
-]
-
-const STEPS = [
-  { n: '1', title: 'Tell us your trip',        body: "Choose your destinations, travel dates, budget, and who you're traveling with. It takes less than a minute." },
-  { n: '2', title: 'Get your route',           body: 'Tripverse generates a complete multi-destination route with transport options, stop durations, and a cost estimate — tailored to your preferences.' },
-  { n: '3', title: 'Travel with your guide',   body: 'Open your Trip Guide for any destination — city highlights, activities, transport details, and tips. Everything you need, in your pocket.' },
-]
-
-const TESTIMONIALS = [
-  { quote: "Planning our Japan trip with Tripverse was insane. Had a 10-day route with all transport sorted in under 2 minutes. Every connection actually worked.", name: 'Sarah K.', sub: 'Solo traveler · 12 countries' },
-  { quote: "I've tried every travel app out there. Nothing comes close to the level of detail Tripverse generates. It literally knows exactly how I travel.", name: 'Marco D.', sub: 'Digital nomad · Based in Lisbon' },
-  { quote: "Booked 6 cities in Southeast Asia following a Tripverse route. Every transport connection was perfect. The cost estimate was spot on too.", name: 'Jess T.', sub: 'Frequent traveler · Family of 4' },
-]
-
-const FAQS = [
-  { q: 'Is Tripverse free to use?',                  a: "Yes — Tripverse is free to start. You can plan routes and access basic guides without a subscription. Premium features like unlimited routes and offline guides are available with Tripverse Pro." },
-  { q: "Can I edit the route after it's generated?", a: 'Absolutely. Every route is fully editable. Add or remove stops, change transport options, adjust durations, and reorder destinations. Think of the AI route as your starting point.' },
-  { q: 'Does it work for any destination?',          a: "Tripverse covers 80+ countries and is constantly expanding. For popular destinations you'll get rich city guides, local tips, and detailed transport info." },
-  { q: 'Can I share my trip with others?',           a: 'Yes. Every route can be shared privately with travel companions or published to the Tripverse community. Other users can discover, like, and adapt your route.' },
-  { q: 'How accurate is the cost estimation?',       a: 'Cost estimates are based on real transport data and updated pricing for flights, trains, and buses. We recommend confirming final prices before booking.' },
-]
-
-const COMMUNITY_ROUTES = [
-  { title: '10 Days in Japan',      user: '@sarah_k', tags: ['Culture', 'Rail Pass'], days: 10 },
-  { title: 'Balkans on a Budget',   user: '@marco_d', tags: ['Budget', 'Adventure'],  days: 14 },
-  { title: 'Pacific Coast Highway', user: '@jess_t',  tags: ['Road Trip', 'Family'],  days: 7  },
-]
-
-// ── Section header ────────────────────────────────────────────────────────────
-function SectionHead({ label, title, center = true }: { label: string; title: string; center?: boolean }) {
+// ── Chat bubble ───────────────────────────────────────────────────────────────
+function Bubble({ text, from, delay = 0 }: { text: string; from: 'user' | 'ai'; delay?: number }) {
+  const isUser = from === 'user'
   return (
-    <Reveal className={`mb-12 md:mb-16 ${center ? 'text-center' : 'text-left'}`}>
-      <div style={{ fontSize: 11, fontWeight: 600, color: BLUE, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>{label}</div>
-      <h2 className="text-[28px] md:text-[44px]" style={{ fontWeight: 700, color: DARK, letterSpacing: '-0.03em', lineHeight: 1.15, margin: 0 }}>{title}</h2>
+    <Reveal delay={delay} style={{ display: 'flex', justifyContent: isUser ? 'flex-end' : 'flex-start' }}>
+      <div style={{
+        maxWidth: '75%', padding: '10px 14px', borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+        background: isUser ? BLUE : CARD,
+        color: isUser ? '#fff' : DARK,
+        fontSize: 14, lineHeight: 1.55,
+        boxShadow: isUser ? 'none' : SHADOW,
+        border: isUser ? 'none' : `1px solid ${BDL}`,
+      }}>
+        {text}
+      </div>
     </Reveal>
   )
 }
 
-// ── NavBar ────────────────────────────────────────────────────────────────────
-function NavBar() {
+// ── Pill tag ──────────────────────────────────────────────────────────────────
+function Pill({ label, icon }: { label: string; icon: string }) {
   return (
-    <nav
-      className="sticky top-0 z-[100] flex items-center justify-between px-5 md:px-12"
-      style={{ background: 'rgba(242,242,247,0.88)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderBottom: `1px solid ${BDL}`, paddingTop: 14, paddingBottom: 14 }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-        <HexLogo />
-        <span style={{ fontWeight: 700, fontSize: 16, color: DARK, letterSpacing: '-0.025em' }}>Tripverse</span>
-      </div>
+    <div style={{
+      display: 'inline-flex', alignItems: 'center', gap: 6,
+      background: CARD, border: `1px solid ${BDL}`,
+      borderRadius: 99, padding: '8px 16px', fontSize: 13,
+      fontWeight: 500, color: DARK, boxShadow: SHADOW,
+    }}>
+      <span>{icon}</span> {label}
+    </div>
+  )
+}
 
-      <div className="hidden md:flex items-center" style={{ gap: 32 }}>
-        {[
-          { label: 'Features',     href: '#features' },
-          { label: 'How it works', href: '#how-it-works' },
-          { label: 'Pricing',      href: '#pricing' },
-        ].map(l => (
-          <a
-            key={l.label} href={l.href}
-            style={{ fontSize: 14, color: MUTED, textDecoration: 'none', fontWeight: 500, letterSpacing: '-0.01em', transition: 'color 0.15s ease' }}
-            onMouseEnter={e => (e.currentTarget.style.color = DARK)}
-            onMouseLeave={e => (e.currentTarget.style.color = MUTED)}
-          >{l.label}</a>
+// ── Icon feature ──────────────────────────────────────────────────────────────
+function IconFeature({ icon, label }: { icon: string; label: string }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+      <div style={{
+        width: 56, height: 56, borderRadius: 16, background: BLBG,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26,
+        boxShadow: SHADOW,
+      }}>{icon}</div>
+      <span style={{ fontSize: 12, color: MUTED, textAlign: 'center', maxWidth: 64 }}>{label}</span>
+    </div>
+  )
+}
+
+function FeatureChip({ icon, label, color = BLUE }: { icon: string; label: string; color?: string }) {
+  return (
+    <div style={{
+      minWidth: 132,
+      background: CARD,
+      border: `1px solid ${BDL}`,
+      borderRadius: 18,
+      padding: '18px 16px',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 10,
+      boxShadow: '0 8px 24px rgba(0,0,0,0.04)',
+    }}>
+      <div style={{
+        width: 38,
+        height: 38,
+        borderRadius: '50%',
+        background: `${color}22`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 18,
+      }}>
+        {icon}
+      </div>
+      <span style={{ fontSize: 13, color: DARK, fontWeight: 700, textAlign: 'center', letterSpacing: '-0.02em' }}>{label}</span>
+    </div>
+  )
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTIONS
+// ═════════════════════════════════════════════════════════════════════════════
+
+function Hero() {
+  return (
+    <section id="hero" style={{ background: CARD, padding: '96px 24px 72px', overflow: 'hidden' }}>
+      <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
+        <Reveal>
+          <h1 style={{
+            fontSize: 'clamp(44px, 7vw, 82px)', fontWeight: 800,
+            color: DARK, letterSpacing: '-0.055em', lineHeight: 1,
+            margin: '0 auto 24px', maxWidth: 760,
+          }}>
+            Plan your next trip<br />
+            in seconds.
+          </h1>
+          <p style={{ fontSize: 18, color: MUTED, lineHeight: 1.7, maxWidth: 500, margin: '0 auto 34px' }}>
+            Tripverse turns your travel ideas into a complete route with guides,
+            transport, costs, and everything you need to go.
+          </p>
+          <a href="#" style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 12,
+            background: BLUE, color: '#fff', borderRadius: 99,
+            padding: '18px 48px', fontSize: 18, fontWeight: 700,
+            letterSpacing: '-0.01em', textDecoration: 'none',
+            boxShadow: '0 8px 32px rgba(2,134,253,0.30)',
+            transition: 'transform 0.15s, box-shadow 0.15s',
+          }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 14px 44px rgba(2,134,253,0.42)' }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(2,134,253,0.30)' }}
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M10 3v10M10 13l-4-4M10 13l4-4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M3 16h14" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            Download on the App Store
+          </a>
+          <p style={{ fontSize: 13, color: MUTED, marginTop: 14 }}>Available on iOS · Designed for people who love to travel</p>
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+function Features() {
+  const destinationPhotos = [
+    { src: IMGS.japan, label: 'Tokyo' },
+    { src: IMGS.europe, label: 'Paris' },
+    { src: IMGS.beach, label: 'Bali' },
+    { src: IMGS.adventure, label: 'Alps' },
+    { src: IMGS.city, label: 'New York' },
+    { src: IMGS.kyoto, label: 'Kyoto' },
+  ]
+
+  return (
+    <section id="features" style={{ background: BG, padding: '72px 0 88px', overflow: 'hidden' }}>
+      <style>{`
+        @keyframes tripverse-photo-left {
+          from { transform: translateX(0); }
+          to { transform: translateX(-25%); }
+        }
+        @keyframes tripverse-photo-right {
+          from { transform: translateX(-25%); }
+          to { transform: translateX(0); }
+        }
+      `}</style>
+
+      <Reveal>
+        <div style={{ position: 'relative', minHeight: 760, overflow: 'hidden' }}>
+          {/* Moving photos directly on the grey background */}
+          <div style={{
+            position: 'absolute',
+            top: 315,
+            left: -120,
+            right: -120,
+            transform: 'translateY(-50%)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 20,
+            zIndex: 1,
+            opacity: 0.76,
+          }}>
+            {[0, 1].map(row => (
+              <div key={row} style={{ overflow: 'visible', background: BG }}>
+                <div style={{
+                  display: 'inline-flex',
+                  gap: 20,
+                  whiteSpace: 'nowrap',
+                  animation: `${row === 0 ? 'tripverse-photo-left' : 'tripverse-photo-right'} ${row === 0 ? 130 : 150}s linear infinite`,
+                }}>
+                  {[...destinationPhotos, ...destinationPhotos, ...destinationPhotos, ...destinationPhotos].map((p, i) => (
+                    <div key={`${p.label}-${row}-${i}`} className="hover-scale" style={{
+                      width: row === 0 ? 210 : 170,
+                      height: row === 0 ? 138 : 112,
+                      borderRadius: 28,
+                      overflow: 'hidden',
+                      position: 'relative',
+                      flexShrink: 0,
+                      boxShadow: '0 14px 40px rgba(0,0,0,0.10)',
+                      background: BG,
+                    }}>
+                      <Image src={p.src} alt={p.label} fill style={{ objectFit: 'cover' }} sizes="220px" />
+                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.30), transparent 58%)' }} />
+                      <div style={{ position: 'absolute', left: 14, bottom: 12, color: '#fff', fontSize: 14, fontWeight: 800 }}>
+                        {p.label}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Soft glow only behind the phone, matching the page background */}
+          <div style={{
+            position: 'absolute',
+            top: 34,
+            left: '50%',
+            width: 640,
+            height: 560,
+            transform: 'translateX(-50%)',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(242,242,247,1) 0%, rgba(242,242,247,0.96) 42%, rgba(242,242,247,0) 72%)',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }} />
+
+          <div style={{ position: 'relative', zIndex: 3, display: 'flex', justifyContent: 'center', paddingTop: 56 }}>
+            <Phone width={285}>
+              <DestinationPickerScreen />
+            </Phone>
+          </div>
+
+          <div style={{ position: 'relative', zIndex: 3, textAlign: 'center', marginTop: 42, padding: '0 24px' }}>
+            <h2 style={{
+              fontSize: 'clamp(34px, 5vw, 64px)',
+              fontWeight: 800,
+              color: DARK,
+              letterSpacing: '-0.055em',
+              lineHeight: 1.04,
+              margin: '0 auto 16px',
+              maxWidth: 700,
+            }}>
+              Scroll destinations.<br />
+              Build the perfect route.
+            </h2>
+            <p style={{ fontSize: 17, color: MUTED, lineHeight: 1.7, maxWidth: 500, margin: '0 auto' }}>
+              Pick the places you want to visit and Tripverse turns them into a route
+              with timing, transport, guides and costs.
+            </p>
+          </div>
+        </div>
+      </Reveal>
+    </section>
+  )
+}
+
+// ── Ticker rows ───────────────────────────────────────────────────────────────
+const ROW1 = ['London', 'Paris', 'Tokyo', 'New York', 'Rome', 'Barcelona', 'Lisbon', 'Bali', 'Sydney', 'Dubai']
+const ROW2 = ['Amsterdam', 'Kyoto', 'Cape Town', 'Santorini', 'Mexico City', 'Vienna', 'Prague', 'Istanbul', 'Marrakech', 'Buenos Aires']
+const ROW3 = ['Singapore', 'Bangkok', 'Maldives', 'Reykjavik', 'Dubrovnik', 'Osaka', 'Miami', 'Zurich', 'Rio de Janeiro', 'Edinburgh']
+
+function TickerRow({ items, reverse = false, dim = false }: { items: string[]; reverse?: boolean; dim?: boolean }) {
+  const doubled = [...items, ...items]
+  return (
+    <div style={{ overflow: 'hidden', width: '100%' }}>
+      <div style={{
+        display: 'inline-flex', gap: 40, whiteSpace: 'nowrap',
+        animation: `ticker-${reverse ? 'right' : 'left'} 120s linear infinite`,
+      }}>
+        {doubled.map((city, i) => (
+          <span key={i} style={{
+            fontSize: 'clamp(22px, 3vw, 36px)',
+            fontWeight: 800,
+            letterSpacing: '-0.03em',
+            color: dim ? 'rgba(10,10,10,0.07)' : 'rgba(10,10,10,0.10)',
+            userSelect: 'none',
+          }}>
+            {city}
+          </span>
         ))}
       </div>
-
-      <a
-        href="#download"
-        style={{ background: DARK, color: '#fff', padding: '10px 24px', borderRadius: 99, fontSize: 14, fontWeight: 600, letterSpacing: '-0.01em', textDecoration: 'none', transition: 'opacity 0.15s', display: 'inline-block' }}
-        onMouseEnter={e => (e.currentTarget.style.opacity = '0.8')}
-        onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-      >
-        Get the app
-      </a>
-    </nav>
+    </div>
   )
 }
 
-// ── HeroE — Full-bleed Magazine ───────────────────────────────────────────────
-function HeroE() {
+function ProofStrip() {
   return (
-    <section style={{ background: CARD, borderBottom: `1px solid ${BDL}` }}>
-      {/* Full-bleed image area — replace inner div with next/image when photo is available */}
-      <div className="relative h-[380px] md:h-[580px] overflow-hidden">
-        <div
-          className="absolute inset-0 flex items-center justify-center"
-          style={{ background: 'repeating-linear-gradient(135deg,#c0cdd8,#c0cdd8 1px,#d8e2ea 1px,#d8e2ea 10px)' }}
-        >
-          <span style={{ fontSize: 11, color: '#8899aa', fontFamily: 'monospace' }}>[ full-bleed destination photograph ]</span>
-        </div>
-
-        {/* Gradient fade to white at bottom */}
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 30%, rgba(255,255,255,0.96) 85%, #FFFFFF 100%)' }} />
-
-        {/* Text overlay — positioned at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 px-5 pb-8 md:px-20 md:pb-12">
-          <Reveal>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: BLBG, borderRadius: 99, padding: '5px 12px', marginBottom: 20 }}>
-              <span style={{ fontSize: 12, color: BLUE, fontWeight: 600 }}>AI-powered planning</span>
-            </div>
-            <h1 className="text-[40px] md:text-[68px]" style={{ fontWeight: 800, color: DARK, letterSpacing: '-0.04em', lineHeight: 1.05, marginBottom: 20 }}>
-              Your next trip,<br />planned in seconds.
-            </h1>
-            <div className="flex flex-wrap items-center gap-3">
-              <a
-                href="#download"
-                style={{ background: DARK, color: '#fff', display: 'inline-block', padding: '13px 28px', borderRadius: 99, fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em', textDecoration: 'none', transition: 'opacity 0.15s' }}
-                onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
-                onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-              >
-                Start planning free
-              </a>
-              <span style={{ fontSize: 14, color: MUTED }}>→ No credit card required</span>
-            </div>
-          </Reveal>
-        </div>
-      </div>
-
-      {/* Subhead paragraph */}
-      <div className="px-5 py-7 md:px-20 md:py-9" style={{ maxWidth: 1160, margin: '0 auto' }}>
+    <section style={{ background: BG, padding: '0 24px 40px' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <Reveal>
-          <p className="text-[16px] md:text-[19px]" style={{ color: MUTED, lineHeight: 1.65, maxWidth: 640, letterSpacing: '-0.01em', margin: 0 }}>
-            Tripverse turns your travel ideas into a complete, personalized route — with stops,
-            transport, activities, costs, and a full guide. All powered by AI. All in one place.
-          </p>
-        </Reveal>
-      </div>
-    </section>
-  )
-}
-
-// ── FeaturesE — Magazine Feature Grid ────────────────────────────────────────
-function FeaturesE() {
-  return (
-    <section id="features" className="py-16 px-5 md:py-24 md:px-12" style={{ background: BG }}>
-      <div style={{ maxWidth: 1160, margin: '0 auto' }}>
-        <SectionHead label="WHAT TRIPVERSE DOES" title="Not just a list of places." />
-
-        {/* Featured first card */}
-        <Reveal>
-          <div
-            className="grid grid-cols-1 md:grid-cols-2 overflow-hidden mb-5"
-            style={{ background: CARD, borderRadius: 20, border: `1px solid ${BDL}`, boxShadow: SHADOW }}
-          >
-            <div className="px-7 py-9 md:px-14 md:py-14 flex flex-col justify-center">
-              <FeatureIcon type={FEATURES[0].icon} size={52} />
-              <h3 className="text-[22px] md:text-[28px]" style={{ fontWeight: 700, color: DARK, margin: '20px 0 14px', letterSpacing: '-0.03em', lineHeight: 1.25 }}>
-                {FEATURES[0].title}
-              </h3>
-              <p style={{ fontSize: 15, color: MUTED, lineHeight: 1.7, margin: 0 }}>{FEATURES[0].body}</p>
-            </div>
-            {/* Feature image placeholder */}
-            <div
-              className="min-h-[200px] md:min-h-[360px] flex items-center justify-center"
-              style={{ background: 'repeating-linear-gradient(45deg,#d8d8de,#d8d8de 1px,#E9E9EF 1px,#E9E9EF 8px)', fontSize: 11, color: MUTED, fontFamily: 'monospace' }}
-            >
-              [ route map · feature visual ]
-            </div>
-          </div>
-        </Reveal>
-
-        {/* White grid — features 2 & 3 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 mb-5" style={{ gap: 20 }}>
-          {FEATURES.slice(1, 3).map((f, i) => (
-            <Reveal key={i} delay={i * 80}>
-              <div style={{ background: CARD, borderRadius: 16, padding: 32, border: `1px solid ${BDL}`, boxShadow: SHADOW }}>
-                <FeatureIcon type={f.icon} size={44} />
-                <h3 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: '18px 0 10px', letterSpacing: '-0.02em', lineHeight: 1.3 }}>{f.title}</h3>
-                <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.65, margin: 0 }}>{f.body}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-
-        {/* Tinted grid — features 4 & 5 */}
-        <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: 20 }}>
-          {FEATURES.slice(3).map((f, i) => (
-            <Reveal key={i} delay={i * 80}>
-              <div style={{ background: SEC, borderRadius: 16, padding: 32, border: `1px solid ${BDL}` }}>
-                <FeatureIcon type={f.icon} size={44} />
-                <h3 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: '18px 0 10px', letterSpacing: '-0.02em', lineHeight: 1.3 }}>{f.title}</h3>
-                <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.65, margin: 0 }}>{f.body}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// ── StepsSection ──────────────────────────────────────────────────────────────
-function StepsSection() {
-  return (
-    <section id="how-it-works" className="py-16 px-5 md:py-24 md:px-12" style={{ background: CARD }}>
-      <div style={{ maxWidth: 1160, margin: '0 auto' }}>
-        <SectionHead label="THREE STEPS TO YOUR TRIP" title="Simple. Fast. Complete." />
-        <div className="grid grid-cols-1 md:grid-cols-3" style={{ gap: 20 }}>
-          {STEPS.map((s, i) => (
-            <Reveal key={i} delay={i * 110}>
-              <div style={{ background: BG, borderRadius: 16, padding: 28, border: `1px solid ${BDL}`, position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', top: 10, right: 18, fontSize: 64, fontWeight: 800, color: BDL, lineHeight: 1, userSelect: 'none', letterSpacing: '-0.05em', pointerEvents: 'none' }}>
-                  {s.n}
+          <div className="grid grid-cols-2 md:grid-cols-4" style={{ gap: 18 }}>
+            {[
+              ['10K+', 'Trips planned'],
+              ['80+', 'Countries covered'],
+              ['4.9★', 'Average rating'],
+              ['<60s', 'To generate your route'],
+            ].map(([value, label]) => (
+              <div key={label} className="hover-scale" style={{
+                textAlign: 'center',
+                padding: '16px 18px',
+              }}>
+                <div style={{ fontSize: 'clamp(40px, 5vw, 68px)', fontWeight: 800, color: DARK, letterSpacing: '-0.06em', lineHeight: 0.95 }}>
+                  {value}
                 </div>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: BLUE, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 700, marginBottom: 20 }}>
-                  {s.n}
+                <div style={{ fontSize: 15, color: MUTED, marginTop: 12, fontWeight: 700, letterSpacing: '-0.01em' }}>
+                  {label}
                 </div>
-                <h3 style={{ fontSize: 17, fontWeight: 700, color: DARK, marginBottom: 10, letterSpacing: '-0.02em' }}>{s.title}</h3>
-                <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.65, margin: 0 }}>{s.body}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// ── StatsSection ──────────────────────────────────────────────────────────────
-function StatsSection() {
-  const stats: [string, string][] = [
-    ['10,000+', 'trips planned'],
-    ['80+',     'countries covered'],
-    ['4.9★',   'average rating'],
-  ]
-  return (
-    <section className="py-14 px-5 md:py-20 md:px-12" style={{ background: SEC }}>
-      <div style={{ maxWidth: 1160, margin: '0 auto' }}>
-        <Reveal style={{ textAlign: 'center', marginBottom: 48 }}>
-          <p className="text-[26px] md:text-[40px]" style={{ fontWeight: 700, color: DARK, letterSpacing: '-0.03em', lineHeight: 1.2, margin: 0 }}>
-            Thousands of routes planned.<br />
-            <span style={{ color: BLUE }}>Millions of miles covered.</span>
-          </p>
-        </Reveal>
-
-        <div className="grid grid-cols-2 md:grid-cols-3" style={{ gap: 20 }}>
-          {stats.map(([n, l], i) => (
-            <Reveal key={i} delay={i * 100} className="text-center">
-              <div style={{ padding: '0 40px', borderLeft: i > 0 ? `1px solid ${BDM}` : 'none' }}>
-                <div className="text-[40px] md:text-[58px]" style={{ fontWeight: 800, color: DARK, letterSpacing: '-0.04em', lineHeight: 1 }}>{n}</div>
-                <div style={{ fontSize: 15, color: MUTED, marginTop: 8, fontWeight: 500 }}>{l}</div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// ── TestimonialsSection ───────────────────────────────────────────────────────
-function TestimonialsSection() {
-  return (
-    <section className="py-16 px-5 md:py-24 md:px-12" style={{ background: BG }}>
-      <div style={{ maxWidth: 1160, margin: '0 auto' }}>
-        <SectionHead label="WHAT TRAVELERS SAY" title="Loved by real travelers." />
-        <div className="grid grid-cols-1 md:grid-cols-3" style={{ gap: 20 }}>
-          {TESTIMONIALS.map((t, i) => (
-            <Reveal key={i} delay={i * 100}>
-              <div style={{ background: CARD, borderRadius: 16, padding: 28, border: `1px solid ${BDL}`, boxShadow: SHADOW, display: 'flex', flexDirection: 'column', gap: 20 }}>
-                <div style={{ fontSize: 40, color: BDL, lineHeight: 1, fontFamily: 'Georgia,serif', marginTop: -8, marginBottom: -12 }}>&ldquo;</div>
-                <p style={{ fontSize: 15, color: DARK, lineHeight: 1.7, flex: 1, margin: 0 }}>{t.quote}</p>
-                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                  <div style={{ width: 40, height: 40, borderRadius: '50%', flexShrink: 0, background: `repeating-linear-gradient(135deg,${BDM},${BDM} 1px,${BDL} 1px,${BDL} 5px)`, border: `1px solid ${BDM}` }} />
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: DARK }}>{t.name}</div>
-                    <div style={{ fontSize: 12, color: MUTED, marginTop: 2 }}>{t.sub}</div>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// ── CommunitySection ──────────────────────────────────────────────────────────
-function CommunitySection() {
-  return (
-    <section className="py-16 px-5 md:py-24 md:px-12" style={{ background: SEC }}>
-      <div style={{ maxWidth: 1160, margin: '0 auto' }}>
-        <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-10 md:gap-20">
-
-          {/* Left — text + filter pills */}
-          <Reveal>
-            <div style={{ fontSize: 11, fontWeight: 600, color: BLUE, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>DISCOVER</div>
-            <h2 className="text-[30px] md:text-[44px]" style={{ fontWeight: 700, color: DARK, letterSpacing: '-0.03em', lineHeight: 1.15, marginBottom: 20 }}>
-              Travel is better<br />when shared.
-            </h2>
-            <p style={{ fontSize: 16, color: MUTED, lineHeight: 1.7, marginBottom: 28 }}>
-              Every trip you create on Tripverse can be shared with the community. Discover routes
-              to places you hadn&apos;t considered. Find travelers with your same style. Get inspired
-              before you even open a map.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {['Adventure', 'Budget', 'Family', 'Luxury', 'Solo', 'Weekend'].map(tag => (
-                <span key={tag} style={{ padding: '6px 14px', borderRadius: 99, border: `1.5px solid ${BDM}`, fontSize: 13, color: MUTED, fontWeight: 500 }}>{tag}</span>
-              ))}
-            </div>
-          </Reveal>
-
-          {/* Right — route cards */}
-          <Reveal delay={150}>
-            <div className="flex flex-col gap-3">
-              {COMMUNITY_ROUTES.map((r, i) => (
-                <div key={i} style={{ background: CARD, borderRadius: 14, padding: '16px 20px', border: `1px solid ${BDL}`, boxShadow: SHADOW, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <div style={{ fontSize: 15, fontWeight: 600, color: DARK, marginBottom: 6 }}>{r.title}</div>
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <span style={{ fontSize: 12, color: MUTED }}>{r.user} ·</span>
-                      {r.tags.map(tag => (
-                        <span key={tag} style={{ fontSize: 11, background: BG, color: MUTED, padding: '2px 9px', borderRadius: 99, border: `1px solid ${BDL}`, fontWeight: 500 }}>{tag}</span>
-                      ))}
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: 16 }}>
-                    <div style={{ fontSize: 20, fontWeight: 700, color: DARK }}>{r.days}</div>
-                    <div style={{ fontSize: 11, color: MUTED }}>days</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Reveal>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// ── FAQSection ────────────────────────────────────────────────────────────────
-function FAQSection() {
-  const [openIdx, setOpenIdx] = useState<number | null>(null)
-
-  return (
-    <section id="pricing" className="py-16 px-5 md:py-24 md:px-12" style={{ background: CARD }}>
-      <div style={{ maxWidth: 720, margin: '0 auto' }}>
-        <SectionHead label="FAQ" title="Common questions." />
-        <Reveal>
-          <div style={{ border: `1px solid ${BDL}`, borderRadius: 16, overflow: 'hidden' }}>
-            {FAQS.map((faq, i) => (
-              <div
-                key={i}
-                style={{ borderTop: i > 0 ? `1px solid ${BDL}` : 'none', cursor: 'pointer' }}
-                onClick={() => setOpenIdx(openIdx === i ? null : i)}
-              >
-                {/* Question row */}
-                <div
-                  className="flex justify-between items-center px-5 py-[18px] md:px-7 md:py-5"
-                  style={{ background: openIdx === i ? BG : CARD, transition: 'background 0.2s' }}
-                >
-                  <span style={{ fontSize: 15, fontWeight: 600, color: DARK, letterSpacing: '-0.01em', paddingRight: 16 }}>{faq.q}</span>
-                  <div
-                    className="flex items-center justify-center flex-shrink-0"
-                    style={{
-                      width: 26, height: 26, borderRadius: '50%',
-                      background: openIdx === i ? DARK : SEC,
-                      color: openIdx === i ? '#fff' : MUTED,
-                      fontSize: 18, lineHeight: 1, fontWeight: 300,
-                      transition: 'all 0.2s',
-                      transform: openIdx === i ? 'rotate(45deg)' : 'none',
-                    }}
-                  >
-                    +
-                  </div>
-                </div>
-
-                {/* Answer */}
-                {openIdx === i && (
-                  <div className="px-5 pb-[18px] md:px-7 md:pb-[22px]" style={{ background: BG }}>
-                    <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.75, margin: 0 }}>{faq.a}</p>
-                  </div>
-                )}
               </div>
             ))}
           </div>
@@ -581,87 +595,597 @@ function FAQSection() {
   )
 }
 
-// ── FinalCTASection ───────────────────────────────────────────────────────────
-function FinalCTASection() {
+function Destinations() {
   return (
-    <section id="download" className="py-20 px-5 md:py-[120px] md:px-12 text-center" style={{ background: DARK }}>
-      <div style={{ maxWidth: 640, margin: '0 auto' }}>
+    <section id="destinations" style={{ background: BG, padding: '80px 24px 32px' }}>
+      <style>{`
+        @keyframes ticker-left  { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        @keyframes ticker-right { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+      `}</style>
+
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+
+        <div style={{
+          background: CARD, borderRadius: 32,
+          border: `1px solid ${BDL}`,
+          boxShadow: '0 8px 40px rgba(0,0,0,0.06)',
+          overflow: 'hidden',
+          position: 'relative',
+          minHeight: 720,
+          padding: '56px 24px 48px',
+        }}>
+
+          <div style={{
+            position: 'absolute',
+            top: 300,
+            left: 0,
+            right: 0,
+            transform: 'translateY(-50%)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 20,
+          }}>
+            <TickerRow items={ROW1} />
+            <TickerRow items={ROW2} reverse dim />
+            <TickerRow items={ROW3} />
+            <TickerRow items={ROW1.slice().reverse()} reverse dim />
+          </div>
+
+          <div style={{
+            position: 'absolute', top: 48, left: '50%', transform: 'translateX(-50%)',
+            width: 520, height: 520,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(255,255,255,1) 42%, rgba(255,255,255,0.72) 58%, rgba(255,255,255,0) 78%)',
+            pointerEvents: 'none',
+            zIndex: 1,
+          }}/>
+
+          <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'center', paddingTop: 16 }}>
+            <Phone width={255}>
+              <MiniRouteScreen />
+            </Phone>
+          </div>
+
+          <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 120, background: 'linear-gradient(to right, #fff 0%, transparent 100%)', pointerEvents: 'none' }}/>
+          <div style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: 120, background: 'linear-gradient(to left, #fff 0%, transparent 100%)', pointerEvents: 'none' }}/>
+
+          <Reveal style={{ position: 'relative', zIndex: 3, textAlign: 'center', marginTop: 44 }}>
+            <h2 style={{
+              fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 800,
+              color: DARK, letterSpacing: '-0.04em', lineHeight: 1.12,
+              margin: '0 auto', maxWidth: 520,
+            }}>
+              Plan any route with no destination limits
+            </h2>
+          </Reveal>
+        </div>
+
+      </div>
+    </section>
+  )
+}
+
+function AiChat() {
+  return (
+    <section id="ai-chat" style={{ background: BG, padding: '0 24px 80px' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <Reveal>
-          <h2 className="text-[36px] md:text-[58px]" style={{ fontWeight: 800, color: '#fff', letterSpacing: '-0.04em', lineHeight: 1.1, marginBottom: 20 }}>
-            Your next adventure<br />is one tap away.
-          </h2>
-          <p className="text-[15px] md:text-[17px]" style={{ color: 'rgba(255,255,255,0.45)', marginBottom: 40, lineHeight: 1.65 }}>
-            Download Tripverse and plan your first route in under 60 seconds.<br />
-            Free to start. No credit card required.
-          </p>
-          <a
-            href="#"
-            className="inline-flex items-center gap-[10px]"
-            style={{
-              background: BLUE, color: '#fff', borderRadius: 99,
-              padding: '16px 36px', fontSize: 17, fontWeight: 700,
-              letterSpacing: '-0.01em', textDecoration: 'none',
-              boxShadow: '0 8px 32px rgba(2,134,253,0.30)',
-              transition: 'transform 0.15s, box-shadow 0.15s',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.transform = 'translateY(-1px)'
-              e.currentTarget.style.boxShadow = '0 12px 40px rgba(2,134,253,0.40)'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.transform = 'none'
-              e.currentTarget.style.boxShadow = '0 8px 32px rgba(2,134,253,0.30)'
-            }}
-          >
-            <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
-              <path d="M9 2L9 12M9 12L5.5 8.5M9 12L12.5 8.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M3 15H15" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
-            Download on the App Store
-          </a>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)', marginTop: 20 }}>
-            Available on iOS · Designed for people who actually travel.
-          </p>
+          <div style={{ background: CARD, borderRadius: 32, border: `1px solid ${BDL}`, boxShadow: '0 8px 40px rgba(0,0,0,0.06)', minHeight: 640, position: 'relative', overflow: 'hidden', padding: '64px 24px 52px', textAlign: 'center' }}>
+            <div style={{ position: 'absolute', right: 120, top: 120, fontSize: 180, color: 'rgba(2,134,253,0.05)', lineHeight: 1 }}>✦</div>
+            <div style={{ position: 'absolute', left: 120, bottom: 150, fontSize: 120, color: 'rgba(2,134,253,0.04)', lineHeight: 1 }}>✦</div>
+
+            <div style={{ display: 'flex', justifyContent: 'center', position: 'relative', zIndex: 2 }}>
+              <Phone width={255}>
+                <MiniChatScreen />
+              </Phone>
+            </div>
+
+            <h2 style={{ fontSize: 'clamp(26px, 3.2vw, 40px)', fontWeight: 800, color: DARK, letterSpacing: '-0.04em', lineHeight: 1.1, margin: '36px auto 14px', maxWidth: 520 }}>
+              Get an answer on any travel question
+            </h2>
+            <p style={{ fontSize: 16, color: MUTED, lineHeight: 1.7, maxWidth: 500, margin: '0 auto 28px' }}>
+              Ask Tripverse to change your route, add a day trip, lower the budget, or explain the best transport option.
+            </p>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+              {['Will this route fit my budget?', 'Add one beach stop', 'What train should I take?'].map(q => (
+                <span key={q} style={{ background: '#F7F7FB', color: BLUE, borderRadius: 99, padding: '10px 16px', fontSize: 13, fontWeight: 700, border: `1px solid ${BDL}` }}>
+                  {q}
+                </span>
+              ))}
+            </div>
+          </div>
         </Reveal>
       </div>
     </section>
   )
 }
 
-// ── Footer ────────────────────────────────────────────────────────────────────
-function Footer() {
+function StatsCallout() {
+  const [budget, setBudget] = useState(3000)
+  const [budgetTouched, setBudgetTouched] = useState(false)
+  const [activeStyle, setActiveStyle] = useState(0)
+  const budgetOptions = [300, 2000, 5000, 10000, 20000]
+  const formatBudget = (value: number) => `$ ${value >= 20000 ? '20000+' : value.toLocaleString('en-US')}`
+
+  useEffect(() => {
+    if (budgetTouched) return
+
+    let frame = 0
+    let direction = 1
+    const timer = window.setInterval(() => {
+      frame += direction
+      if (frame >= 100) direction = -1
+      if (frame <= 0) direction = 1
+
+      const eased = (1 - Math.cos((frame / 100) * Math.PI)) / 2
+      const next = Math.round((300 + eased * (10000 - 300)) / 100) * 100
+      setBudget(next)
+    }, 80)
+
+    return () => window.clearInterval(timer)
+  }, [budgetTouched])
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setActiveStyle(current => (current + 1) % 8)
+    }, 900)
+
+    return () => window.clearInterval(timer)
+  }, [])
+
   return (
-    <footer
-      className="flex flex-wrap justify-between items-center px-5 py-6 md:px-12 gap-3"
-      style={{ background: DARK, borderTop: '1px solid rgba(255,255,255,0.07)' }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <HexLogo size={16} />
-        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)', fontWeight: 500 }}>Tripverse · 2025</span>
+    <section style={{ background: BG, padding: '0 24px 80px' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: 24 }}>
+          <Reveal>
+            <div style={{ background: CARD, borderRadius: 32, height: 360, border: `1px solid ${BDL}`, boxShadow: '0 8px 40px rgba(0,0,0,0.05)', overflow: 'hidden', padding: '42px 28px 34px', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ height: 170, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', maxWidth: 390 }}>
+                {['Culture', 'Beach', 'Food', 'Road trip', 'Family', 'Luxury', 'Adventure', 'Budget'].map((item, i) => (
+                  <span key={item} className="hover-scale" style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'relative',
+                    top: activeStyle === i ? -2 : 0,
+                    background: activeStyle === i ? BLUE : '#F7F7FB',
+                    border: `1px solid ${activeStyle === i ? BLUE : BDL}`,
+                    borderRadius: 18,
+                    padding: '16px 20px',
+                    minWidth: 112,
+                    textAlign: 'center',
+                    color: activeStyle === i ? '#fff' : DARK,
+                    fontSize: 14,
+                    fontWeight: 800,
+                    boxShadow: activeStyle === i ? '0 8px 24px rgba(2,134,253,0.22)' : 'none',
+                    transition: 'background 0.25s, border-color 0.25s, color 0.25s, top 0.25s, transform 0.25s, box-shadow 0.25s',
+                  }}>
+                    {item}
+                  </span>
+                ))}
+                </div>
+              </div>
+              <div style={{ textAlign: 'center', marginTop: 'auto' }}>
+                <h3 style={{ fontSize: 26, fontWeight: 800, color: DARK, letterSpacing: '-0.04em', lineHeight: 1.1, margin: '0 0 8px' }}>
+                  See trips for every travel style
+                </h3>
+                <p style={{ fontSize: 15, color: MUTED, margin: 0 }}>Tripverse adapts the itinerary to how you actually travel.</p>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal delay={120}>
+            <div style={{ background: CARD, borderRadius: 32, height: 360, border: `1px solid ${BDL}`, boxShadow: '0 8px 40px rgba(0,0,0,0.05)', padding: '42px 28px 34px', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ height: 170, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '100%', maxWidth: 430 }}>
+                  <div style={{ fontSize: 56, fontWeight: 800, color: DARK, letterSpacing: '-0.06em', lineHeight: 1, marginBottom: 28, textAlign: 'center' }}>
+                    {formatBudget(budget)}
+                  </div>
+                  <div style={{ position: 'relative', height: 28, marginBottom: 22 }}>
+                    <div style={{
+                      position: 'absolute',
+                      left: 0,
+                      right: 0,
+                      top: 11,
+                      height: 5,
+                      borderRadius: 99,
+                      background: `linear-gradient(to right, ${DARK} 0%, ${DARK} ${((budget - 300) / (20000 - 300)) * 100}%, ${BDL} ${((budget - 300) / (20000 - 300)) * 100}%, ${BDL} 100%)`,
+                    }} />
+                    <input
+                      type="range"
+                      min={300}
+                      max={20000}
+                      step={100}
+                      value={budget}
+                      onPointerDown={() => setBudgetTouched(true)}
+                      onChange={e => {
+                        setBudgetTouched(true)
+                        setBudget(Number(e.currentTarget.value))
+                      }}
+                      aria-label="Trip budget"
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        width: '100%',
+                        opacity: 0,
+                        cursor: 'pointer',
+                      }}
+                    />
+                    <div style={{
+                      position: 'absolute',
+                      left: `${((budget - 300) / (20000 - 300)) * 100}%`,
+                      top: 0,
+                      width: 54,
+                      height: 28,
+                      borderRadius: 14,
+                      background: CARD,
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.14)',
+                      transform: 'translateX(-50%)',
+                      pointerEvents: 'none',
+                    }} />
+                  </div>
+                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
+                    {budgetOptions.map(value => (
+                      <button
+                        key={value}
+                        type="button"
+                        className="hover-scale"
+                        onClick={() => {
+                          setBudgetTouched(true)
+                          setBudget(value)
+                        }}
+                        style={{
+                          background: Math.abs(budget - value) < 250 ? DARK : '#F0F0F5',
+                          color: Math.abs(budget - value) < 250 ? '#fff' : DARK,
+                          borderRadius: 14,
+                          padding: '8px 14px',
+                          fontSize: 13,
+                          fontWeight: 800,
+                          border: 'none',
+                          cursor: 'pointer',
+                          transition: 'background 0.15s, color 0.15s',
+                        }}
+                      >
+                        {value >= 20000 ? '$20k+' : value >= 1000 ? `$${value / 1000}k` : `$${value}`}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div style={{ textAlign: 'center', marginTop: 'auto' }}>
+                <h3 style={{ fontSize: 26, fontWeight: 800, color: DARK, letterSpacing: '-0.04em', lineHeight: 1.1, margin: '0 0 8px' }}>
+                  Pick a budget before you plan
+                </h3>
+                <p style={{ fontSize: 15, color: MUTED, margin: 0 }}>Tripverse uses your budget to shape routes, stays and transport.</p>
+              </div>
+            </div>
+          </Reveal>
+        </div>
       </div>
-      <div className="flex gap-6">
-        {['Privacy', 'Terms', 'Contact'].map(l => (
-          <a key={l} href="#" style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)', textDecoration: 'none' }}>{l}</a>
-        ))}
-      </div>
-    </footer>
+    </section>
   )
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
-export default function Page() {
+function Testimonials() {
+  const reviews = [
+    {
+      name: 'Sarah K.', meta: 'Dec 27th, 2025 / App Store',
+      title: 'Japan in 10 days, planned perfectly',
+      quote: 'I had a full Japan route with transport, costs and city guides in under two minutes. Every connection actually worked.',
+      src: IMGS.person1,
+      photo: IMGS.japan,
+    },
+    {
+      name: 'Marco D.', meta: 'May 23rd, 2025 / Verified',
+      title: 'No more spreadsheet planning',
+      quote: 'The app knows how I travel. It gave me a route that felt personal, realistic, and easy to follow.',
+      src: IMGS.person2,
+    },
+    {
+      name: 'Jess T.', meta: 'Nov 18th, 2025 / Family trip',
+      title: 'Simply love it!',
+      quote: 'We booked 6 cities in Southeast Asia following a Tripverse route. The cost estimate was spot on.',
+      src: IMGS.person3,
+    },
+    {
+      name: 'Lena W.', meta: 'Sep 4th, 2025 / Backpacker',
+      title: 'Better than my old travel spreadsheet',
+      quote: 'I planned three weeks across South America. Tripverse gave me a cleaner route than anything I built manually.',
+      src: IMGS.person4,
+      photo: IMGS.adventure,
+    },
+    {
+      name: 'David R.', meta: 'Aug 12th, 2025 / Frequent flyer',
+      title: 'Transport finally makes sense',
+      quote: 'The biggest win is that it understands actual train and bus timing. The route felt like something I could follow.',
+      src: IMGS.person5,
+    },
+    {
+      name: 'Aiko M.', meta: 'Jul 29th, 2025 / Weekend explorer',
+      title: 'Perfect for short trips',
+      quote: 'Used it for a four-day Tokyo itinerary. The guide was specific, practical, and much better than generic blogs.',
+      src: IMGS.person6,
+      photo: IMGS.kyoto,
+    },
+    {
+      name: 'Nora P.', meta: 'Jun 18th, 2025 / Solo traveler',
+      title: 'Saved me hours',
+      quote: 'I went from an idea to a real route in minutes. I still edited it, but the starting point was excellent.',
+      src: IMGS.traveler1,
+    },
+    {
+      name: 'Mateo G.', meta: 'May 2nd, 2025 / Couple trip',
+      title: 'The budget estimate helped a lot',
+      quote: 'We changed cities twice and the cost estimate updated with the route. That made planning way less stressful.',
+      src: IMGS.traveler2,
+      photo: IMGS.beach,
+    },
+  ]
+  const carousel = [...reviews, ...reviews]
+  const reviewTrackRef = useRef<HTMLDivElement>(null)
+  const reviewDragStartX = useRef(0)
+  const reviewDragStartOffset = useRef(0)
+  const [reviewOffset, setReviewOffset] = useState(0)
+  const [draggingReviews, setDraggingReviews] = useState(false)
+
+  const normalizeReviewOffset = (value: number) => {
+    const halfWidth = (reviewTrackRef.current?.scrollWidth ?? 0) / 2
+    if (!halfWidth) return value
+
+    let next = value
+    while (next <= -halfWidth) next += halfWidth
+    while (next > 0) next -= halfWidth
+    return next
+  }
+
+  useEffect(() => {
+    if (draggingReviews) return
+
+    let frame = 0
+    let lastTime = performance.now()
+
+    const tick = (time: number) => {
+      const delta = time - lastTime
+      lastTime = time
+      setReviewOffset(current => normalizeReviewOffset(current - delta * 0.025))
+      frame = window.requestAnimationFrame(tick)
+    }
+
+    frame = window.requestAnimationFrame(tick)
+    return () => window.cancelAnimationFrame(frame)
+  }, [draggingReviews])
+
+  return (
+    <section id="testimonials" style={{ background: BG, padding: '96px 0' }}>
+      <style>{`
+        @keyframes reviews-left {
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
+        }
+      `}</style>
+
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px' }}>
+        <Reveal style={{ textAlign: 'center', marginBottom: 64 }}>
+          <h2 style={{ fontSize: 'clamp(34px, 5vw, 64px)', fontWeight: 800, color: DARK, letterSpacing: '-0.05em', lineHeight: 1.02, margin: 0 }}>
+            Loved by both<br />planners & explorers
+          </h2>
+          <p style={{ fontSize: 17, color: MUTED, lineHeight: 1.7, maxWidth: 460, margin: '18px auto 0' }}>
+            Real travelers using Tripverse for real routes, budgets, guides and transport decisions.
+          </p>
+        </Reveal>
+      </div>
+
+      <Reveal style={{ overflowX: 'hidden', overflowY: 'visible', position: 'relative', padding: '28px 0 42px' }}>
+        <div
+          ref={reviewTrackRef}
+          onPointerDown={e => {
+            setDraggingReviews(true)
+            reviewDragStartX.current = e.clientX
+            reviewDragStartOffset.current = reviewOffset
+            e.currentTarget.setPointerCapture(e.pointerId)
+          }}
+          onPointerMove={e => {
+            if (!draggingReviews) return
+            const delta = e.clientX - reviewDragStartX.current
+            setReviewOffset(normalizeReviewOffset(reviewDragStartOffset.current + delta))
+          }}
+          onPointerUp={e => {
+            setDraggingReviews(false)
+            e.currentTarget.releasePointerCapture(e.pointerId)
+          }}
+          onPointerCancel={() => setDraggingReviews(false)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'flex-start',
+            gap: 18,
+            padding: '0 24px',
+            transform: `translateX(${reviewOffset}px)`,
+            cursor: draggingReviews ? 'grabbing' : 'grab',
+            touchAction: 'pan-y',
+            userSelect: 'none',
+          }}
+        >
+          {carousel.map((p, i) => (
+            <div key={`${p.name}-${i}`} className="hover-scale" style={{
+              width: p.photo ? 360 : 330,
+              minHeight: p.photo ? 430 : (i % 3 === 0 ? 350 : 310),
+              background: CARD,
+              borderRadius: 26,
+              padding: 24,
+              border: `1px solid ${BDL}`,
+              boxShadow: '0 12px 34px rgba(0,0,0,0.06)',
+              flexShrink: 0,
+              display: 'flex',
+              flexDirection: 'column',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 14, alignItems: 'flex-start', marginBottom: 20 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 38, height: 38, borderRadius: '50%', overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
+                    <Image src={p.src} alt={p.name} fill style={{ objectFit: 'cover' }} sizes="38px" />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: DARK }}>{p.name}</div>
+                    <div style={{ fontSize: 12, color: MUTED, marginTop: 3 }}>{p.meta}</div>
+                  </div>
+                </div>
+                <div style={{ color: '#16A34A', fontSize: 14, letterSpacing: 1 }}>★★★★★</div>
+              </div>
+              {p.photo && (
+                <div style={{ height: i % 2 === 0 ? 160 : 130, borderRadius: 18, overflow: 'hidden', position: 'relative', marginBottom: 20 }}>
+                  <Image src={p.photo} alt={`${p.name} trip photo`} fill style={{ objectFit: 'cover' }} sizes="360px" />
+                </div>
+              )}
+              <h3 style={{ fontSize: 21, fontWeight: 800, color: DARK, letterSpacing: '-0.04em', lineHeight: 1.15, margin: '0 0 14px' }}>
+                {p.title}
+              </h3>
+              <p style={{ fontSize: 15, color: DARK, lineHeight: 1.68, margin: 0 }}>
+                {p.quote}
+              </p>
+              <div style={{ marginTop: 'auto', paddingTop: 22, fontSize: 12, color: MUTED }}>
+                Verified Tripverse user
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 120, background: `linear-gradient(to right, ${BG} 0%, rgba(242,242,247,0) 100%)`, pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: 120, background: `linear-gradient(to left, ${BG} 0%, rgba(242,242,247,0) 100%)`, pointerEvents: 'none' }} />
+      </Reveal>
+    </section>
+  )
+}
+
+function AccentCallout() {
+  return (
+    <section style={{ background: BG, padding: '0 24px 32px' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: 24 }}>
+          <Reveal>
+            <div style={{ background: CARD, borderRadius: 32, border: `1px solid ${BDL}`, boxShadow: '0 8px 40px rgba(0,0,0,0.05)', height: 330, padding: '38px 34px 34px', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ height: 142, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, height: 120, width: '100%', maxWidth: 430 }}>
+                {[
+                  ['Tripverse', 118, BLUE],
+                  ['Generic AI', 74, SEC],
+                  ['Manual plan', 88, SEC],
+                  ['Travel blog', 66, SEC],
+                ].map(([name, height, color]) => (
+                  <div key={name} style={{ flex: 1 }}>
+                    <div className="hover-scale" style={{ height: Number(height), borderRadius: 12, background: color as string, opacity: name === 'Tripverse' ? 0.85 : 1 }} />
+                    <div style={{ fontSize: 12, color: MUTED, marginTop: 8, textAlign: 'center' }}>{name}</div>
+                  </div>
+                ))}
+                </div>
+              </div>
+              <div style={{ textAlign: 'center', marginTop: 'auto' }}>
+                <h3 style={{ fontSize: 25, fontWeight: 800, color: DARK, letterSpacing: '-0.04em', lineHeight: 1.1, margin: '0 0 8px' }}>
+                  Best-in-class planning assistant
+                </h3>
+                <p style={{ fontSize: 15, color: MUTED, margin: 0 }}>
+                  Built for real routes, not generic inspiration.
+                </p>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal delay={120}>
+            <div style={{ background: CARD, borderRadius: 32, border: `1px solid ${BDL}`, boxShadow: '0 8px 40px rgba(0,0,0,0.05)', height: 330, padding: '38px 34px 34px', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ height: 142, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 14, width: '100%', maxWidth: 380 }}>
+                {['Will it fit my budget?', 'Can I add one beach stop?', 'What train should I book?'].map(q => (
+                  <div key={q} className="hover-scale" style={{ background: '#EEF4FF', color: BLUE, borderRadius: 99, padding: '12px 18px', fontSize: 15, fontWeight: 700 }}>
+                    {q}
+                  </div>
+                ))}
+                </div>
+              </div>
+              <div style={{ textAlign: 'center', marginTop: 'auto' }}>
+                <h3 style={{ fontSize: 25, fontWeight: 800, color: DARK, letterSpacing: '-0.04em', lineHeight: 1.1, margin: '0 0 8px' }}>
+                  Suggestions personalized to you
+                </h3>
+                <p style={{ fontSize: 15, color: MUTED, margin: 0 }}>
+                  Ask follow-ups and refine your route instantly.
+                </p>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function FinalCTA() {
+  return (
+    <section id="cta" style={{ background: BG, padding: '0 24px 64px' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <Reveal>
+          <div style={{ position: 'relative', borderRadius: 32, overflow: 'hidden', minHeight: 360, boxShadow: '0 8px 40px rgba(0,0,0,0.06)' }}>
+            <Img src={IMGS.heroAlt} h={360} r={0} alt="Travel planning" />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(10,10,10,0.40), rgba(10,10,10,0.05))' }} />
+            <div style={{ position: 'absolute', left: 36, bottom: 36, maxWidth: 420 }}>
+              <h2 style={{ fontSize: 'clamp(30px, 4vw, 52px)', fontWeight: 800, color: '#fff', letterSpacing: '-0.04em', lineHeight: 1.05, margin: 0 }}>
+                Tripverse feels like<br />travel planning made simple
+              </h2>
+            </div>
+          </div>
+        </Reveal>
+
+        <Reveal delay={120} style={{ maxWidth: 560, margin: '44px auto 0', textAlign: 'left' }}>
+          <h3 style={{ fontSize: 'clamp(30px, 4vw, 48px)', fontWeight: 800, color: DARK, letterSpacing: '-0.05em', lineHeight: 1.05, margin: '0 0 24px' }}>
+            Follow your route from idea to booked trip.
+          </h3>
+          <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center' }}>
+            <a href="#" style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 12,
+              background: '#0286fd', color: '#fff',
+              borderRadius: 99, padding: '18px 48px',
+              fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em',
+              textDecoration: 'none',
+              boxShadow: '0 8px 32px rgba(2,134,253,0.30)',
+              transition: 'transform 0.15s, box-shadow 0.15s',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 14px 44px rgba(2,134,253,0.42)' }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(2,134,253,0.30)' }}
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 3v10M10 13l-4-4M10 13l4-4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M3 16h14" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+              Download on the App Store
+            </a>
+            <p style={{ fontSize: 13, color: MUTED, marginTop: 16, marginBottom: 0, textAlign: 'center' }}>
+              Available on iOS · Designed for people who love to travel
+            </p>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// PAGE
+// ═════════════════════════════════════════════════════════════════════════════
+export default function HomePage() {
   return (
     <>
-      <NavBar />
-      <HeroE />
-      <FeaturesE />
-      <StepsSection />
-      <StatsSection />
-      <TestimonialsSection />
-      <CommunitySection />
-      <FAQSection />
-      <FinalCTASection />
-      <Footer />
+      <style>{`
+        .hover-scale {
+          transition: transform 0.22s ease, box-shadow 0.22s ease;
+          will-change: transform;
+        }
+        .hover-scale:hover {
+          transform: scale(1.035);
+        }
+      `}</style>
+      <Hero />
+      <Features />
+      <ProofStrip />
+      <Destinations />
+      <StatsCallout />
+      <Testimonials />
+      <AccentCallout />
+      <FinalCTA />
     </>
   )
 }
