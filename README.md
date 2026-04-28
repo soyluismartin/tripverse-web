@@ -37,24 +37,23 @@ npm run deploy
 # or similar package manager command
 ```
 
-### Cloudflare Pages / Workers (dashboard build settings)
+### Cloudflare Pages / Workers
 
-Use **`@opennextjs/cloudflare`** (OpenNext). Do **not** set the build command to the deprecated **`@cloudflare/next-on-pages`** adapter.
+Seguir **[OpenNext Cloudflare — Get started](https://opennext.js.org/cloudflare/get-started)**.
 
 | Setting | Value |
 | --- | --- |
-| **Build command** | **`npm run pages:build`** (runs OpenNext build + copia `worker.js` → `_worker.js` para [Advanced Mode](https://developers.cloudflare.com/pages/functions/advanced-mode/)) |
-| **Root directory** | Repository root (where `package.json` lives) |
-| **Build output directory** | Leave empty / default if Pages lee **`wrangler.toml`**: `pages_build_output_dir = ".open-next"` |
+| **Build command** | `npm run pages:build` → equivale a `npx @opennextjs/cloudflare build` |
+| **Root directory** | Raíz del repo (donde está `package.json`) |
+| **Build output directory** | Vacío / por defecto si Wrangler lee **`wrangler.jsonc`**: debe figurar **`pages_build_output_dir`: `.open-next`** en ese archivo (salida OpenNext) |
 
 **Archivos:**
 
-- **`wrangler.toml`** — solo Cloudflare Pages (sin `main` / `assets` / `images`): `pages_build_output_dir`, compatibilidad. En Pages el nombre **`ASSETS`** está reservado para el runtime de Pages.
-- **`wrangler.worker.jsonc`** — Worker OpenNext completo (`main`, binding `ASSETS`, `images`, etc.). Todo comando OpenNext/Wrangler que construya o despliegue el Worker debe usar **`--config wrangler.worker.jsonc`** (ya está en los scripts `npm`).
+- **`wrangler.jsonc`** — Plantilla oficial OpenNext (`main`, `assets`, compatibilidad). Incluye `pages_build_output_dir` para integración Pages + mismo archivo para Workers (`npm run deploy`).
 
-La documentación oficial de OpenNext orienta el deploy a **Cloudflare Workers** (`npm run deploy`). Pages usa **`wrangler.toml`** para CI + **`_worker.js`** en `.open-next/` (`scripts/cf-pages-prep.mjs`).
+Compatibilidad: **`@opennextjs/cloudflare`** peer dependency exige **`next` ≥ 16.2.3**; este proyecto usa **Next.js 16.2.3**.
 
-After `npm ci`, prueba localmente: `npm run pages:build`.
+Tras `npm ci`: `npm run pages:build` o `npm run preview`.
 
 ## Learn More
 

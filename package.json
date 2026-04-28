@@ -7,11 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "pages:build": "npx @opennextjs/cloudflare build --config wrangler.worker.jsonc && node scripts/cf-pages-prep.mjs",
-    "deploy": "npx @opennextjs/cloudflare build --config wrangler.worker.jsonc && npx @opennextjs/cloudflare deploy --config wrangler.worker.jsonc",
-    "upload": "npx @opennextjs/cloudflare build --config wrangler.worker.jsonc && npx @opennextjs/cloudflare upload --config wrangler.worker.jsonc",
-    "preview": "npx @opennextjs/cloudflare build --config wrangler.worker.jsonc && npx @opennextjs/cloudflare preview --config wrangler.worker.jsonc",
-    "cf-typegen": "wrangler types --config wrangler.worker.jsonc --env-interface CloudflareEnv ./cloudflare-env.d.ts"
+    "pages:build": "npx @opennextjs/cloudflare build",
+    "deploy": "npx @opennextjs/cloudflare build && npx @opennextjs/cloudflare deploy",
+    "upload": "npx @opennextjs/cloudflare build && npx @opennextjs/cloudflare upload",
+    "preview": "npx @opennextjs/cloudflare build && npx @opennextjs/cloudflare preview",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.19.1",
