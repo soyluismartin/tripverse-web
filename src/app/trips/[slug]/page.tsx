@@ -155,6 +155,22 @@ function sectionHeading(children: string) {
   return <h2 className="trip-detail-section-heading">{children}</h2>
 }
 
+function LockedContentOverlay() {
+  return (
+    <div className="trip-detail-locked-anchor" aria-live="polite">
+      <div className="trip-detail-locked-overlay">
+        <p className="trip-detail-locked-title">This content is locked.</p>
+        <p className="trip-detail-locked-copy">
+          Unlock full activities and food recommendations by downloading the app.
+        </p>
+        <Button href="/#download" variant="secondary" size="md">
+          Download on the App Store
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 function TripOverviewSection({
   trip,
   narrative,
@@ -220,8 +236,9 @@ function FinanceDocsSafetySection({
   if (!hasBody) return null
 
   return (
-    <TripDetailCard>
+    <TripDetailCard className="trip-detail-card--locked">
       {sectionHeading('Finances, documents & safety')}
+      <LockedContentOverlay />
       {pieSum > 0 ? (
         <div className="trip-detail-finance-pie-well">
           <CostSplitPie
@@ -577,8 +594,9 @@ function ActivitiesSection({ activeActivities }: { activeActivities: ActivitiesV
   if (cities.length === 0) return null
 
   return (
-    <TripDetailCard className="trip-detail-card--activities">
+    <TripDetailCard className="trip-detail-card--activities trip-detail-card--locked">
       {sectionHeading('Activities & food')}
+      <LockedContentOverlay />
       {cities.map((city, index) => (
         <ActivitiesCityBlock
           key={city.city ? `${city.city}-${index}` : `activities-${index}`}
@@ -621,8 +639,9 @@ function CostBreakdownSection({ activeCosts }: { activeCosts: CityVersionCosts }
   const budgetNote = activeCosts.budgetNote ?? totalsMerged.budgetNote
 
   return (
-    <TripDetailCard>
+    <TripDetailCard className="trip-detail-card--locked">
       {sectionHeading('Cost breakdown · per person')}
+      <LockedContentOverlay />
       {normalized.map((city, index) => (
         <CostCityCollapsible
           key={city.city ? `${city.city}-${index}` : `cost-${index}`}
@@ -669,8 +688,9 @@ function RationaleSection({ activeRationale }: { activeRationale: RationaleVersi
   if (!hasContent) return null
 
   return (
-    <TripDetailCard>
+    <TripDetailCard className="trip-detail-card--locked">
       {sectionHeading('Why this route?')}
+      <LockedContentOverlay />
       {activeRationale.summary ? <p className="rationale-summary">{activeRationale.summary}</p> : null}
       <ul className="rationale-list">
         {(activeRationale.highlights ?? []).map(item => (
@@ -874,11 +894,6 @@ export default async function TripDetailPage({ params, searchParams }: PageProps
           </div>
         </section>
 
-        <div className="mobile-download-cta">
-          <Button href="/#download" variant="secondary" size="lg">
-            Download Tripverse
-          </Button>
-        </div>
       </div>
     )
   } catch (err) {
