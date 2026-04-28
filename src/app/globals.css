@@ -1001,6 +1001,8 @@ body:has(.trip-detail-page) {
 .trip-detail-card--locked > :not(.trip-detail-locked-anchor) {
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
+	filter: blur(6px);
+	opacity: 0.92;
 	pointer-events: none;
 	user-select: none;
 }
