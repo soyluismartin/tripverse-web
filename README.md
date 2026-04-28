@@ -49,7 +49,7 @@ Seguir **[OpenNext Cloudflare — Get started](https://opennext.js.org/cloudflar
 
 **Archivos:**
 
-- **`wrangler.jsonc`** — Mínimo compatible con Pages: `main`, `pages_build_output_dir`, compatibilidad Node (sin bindings `ASSETS`/`images` que Pages rechaza).
+- **`wrangler.jsonc`** — Mínimo compatible con Pages: `pages_build_output_dir`, compatibilidad Node (sin `main` junto a Pages; sin bindings `ASSETS`/`images` que Pages rechaza).
 
 Compatibilidad: **`@opennextjs/cloudflare`** peer dependency exige **`next` ≥ 16.2.3**; este proyecto usa **Next.js 16.2.3**.
 
