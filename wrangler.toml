@@ -2,3 +2,6 @@ name = "tripverse-web"
 pages_build_output_dir = ".open-next"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
+
+[vars]
+NEXTJS_ENV = "production"

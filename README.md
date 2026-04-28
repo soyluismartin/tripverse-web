@@ -45,11 +45,11 @@ Seguir **[OpenNext Cloudflare — Get started](https://opennext.js.org/cloudflar
 | --- | --- |
 | **Build command** | `npm run pages:build` → equivale a `npx @opennextjs/cloudflare build` |
 | **Root directory** | Raíz del repo (donde está `package.json`) |
-| **Build output directory** | Vacío / por defecto si Wrangler lee **`wrangler.jsonc`**: debe figurar **`pages_build_output_dir`: `.open-next`** en ese archivo (salida OpenNext) |
+| **Build output directory** | Vacío / por defecto si Wrangler lee **`wrangler.toml`**: debe figurar **`pages_build_output_dir`: `.open-next`** en ese archivo (salida OpenNext) |
 
 **Archivos:**
 
-- **`wrangler.jsonc`** — Mínimo compatible con Pages: `pages_build_output_dir`, compatibilidad Node (sin `main` junto a Pages; sin bindings `ASSETS`/`images` que Pages rechaza).
+- **`wrangler.toml`** — Configuración Pages: `pages_build_output_dir`, compatibilidad Node, `NEXTJS_ENV` en `[vars]`.
 
 Compatibilidad: **`@opennextjs/cloudflare`** peer dependency exige **`next` ≥ 16.2.3**; este proyecto usa **Next.js 16.2.3**.
 
