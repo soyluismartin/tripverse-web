@@ -2,9 +2,10 @@ import { copyFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 
 /**
- * Cloudflare Pages (Advanced / OpenNext): el entry del Worker debe ser `_worker.js`
- * en la raíz del directorio de salida (`pages_build_output_dir` = `.open-next`).
- * OpenNext emite `worker.js`; Pages lo enlaza como `_worker.js`.
+ * Salida lista para Cloudflare Pages (CI/Git): tras `opennextjs-cloudflare build`, Pages espera
+ * `_worker.js` en la raíz del directorio publicado (`pages_build_output_dir`). OpenNext escribe
+ * `worker.js`; esta copia NO usa Wrangler en runtime (solo fs en la máquina de build).
+ *
  * @see https://developers.cloudflare.com/pages/functions/advanced-mode/
  */
 const out = '.open-next'
