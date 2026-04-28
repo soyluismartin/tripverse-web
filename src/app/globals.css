@@ -6,6 +6,10 @@
 
 /* ── Design tokens — mirrors DesignSystem.swift ─────────────────────────────── */
 :root {
+	/* System stack (evita depender de `next/font/google` en Workers/OpenNext SSR) */
+	--font-inter: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		"Helvetica Neue", sans-serif;
+
 	/* Backgrounds (rBg / rCard / rSurface2) */
 	--color-bg:        #F2F2F7;
 	--color-surface:   #FFFFFF;

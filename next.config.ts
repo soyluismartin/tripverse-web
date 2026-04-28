@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 
 const nextConfig: NextConfig = {
 	images: {
@@ -13,6 +14,7 @@ const nextConfig: NextConfig = {
 
 export default nextConfig;
 
-/** Solo desarrollo local (`next dev`): expone bindings de Wrangler en Node. En build/Pages no sustituye el runtime del Worker. */
-import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
-initOpenNextCloudflareForDev();
+/** Solo `next dev`: no ejecutar en `next build` / CI de Pages (evita side effects con Wrangler/Miniflare). */
+if (process.env.NODE_ENV === "development") {
+	void initOpenNextCloudflareForDev();
+}

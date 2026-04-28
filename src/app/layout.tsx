@@ -1,19 +1,17 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 
-const inter = Inter({
-	subsets:  ['latin'],
-	weight:   ['400', '500', '600', '700', '800'],
-	variable: '--font-inter',
-})
-
+/**
+ * Sin `next/font/google` en el layout: en Cloudflare Workers el pipeline de fuentes
+ * remotas puede romper el SSR global (500 en "/" aunque la página sea client-only).
+ * La pila system-ui está definida en `globals.css` como `--font-inter`.
+ */
 export const metadata: Metadata = {
 	title: 'Tripverse — Plan your next trip in seconds',
 	description:
-		'Tripverse turns your travel ideas into a complete, personalized route — with stops, transport, activities, costs, and a full guide. All powered by AI. All in one place.',
+		'Tripverse turns your travel ideas into a complete, personalized route — with stops, transport, activities, costs, and a full trip guide. All powered by AI. All in one place.',
 	openGraph: {
 		title:       'Tripverse — Plan your next trip in seconds',
 		description: 'AI-powered travel planning. Complete routes, trip guides, and cost estimates — all in one app.',
@@ -29,7 +27,7 @@ export default function RootLayout({
 			<head>
 				<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 			</head>
-			<body className={`${inter.variable} antialiased`}>
+			<body className="antialiased">
 				<Header />
 				<main>{children}</main>
 				<Footer />
