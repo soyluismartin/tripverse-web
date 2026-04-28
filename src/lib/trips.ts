@@ -138,66 +138,80 @@ function getTrendingCutoff() {
   return cutoff.toISOString()
 }
 
-// Listado publico de viajes — para /trips
+// Listado publico de viajes — para /trips (temporal: no lanzar; lista vacía si falla Supabase)
 export async function getPublicTrips(page = 0, limit = 12, options: PublicTripsOptions = {}): Promise<Trip[]> {
-  const supabase = createServerClient()
-  const from = page * limit
-  const to = from + limit - 1
-  const sort = options.sort ?? 'trending'
+  try {
+    const supabase = await createServerClient()
+    if (!supabase) return []
 
-  let query = supabase
-    .from('trips')
-    .select(publicTripSelect)
-    .not('routes.slug', 'is', null)
+    const from = page * limit
+    const to = from + limit - 1
+    const sort = options.sort ?? 'trending'
 
-  if (options.filterTag) {
-    query = query.filter('tags', 'ov', `{${options.filterTag}}`)
+    let query = supabase
+      .from('trips')
+      .select(publicTripSelect)
+      .not('routes.slug', 'is', null)
+
+    if (options.filterTag) {
+      query = query.filter('tags', 'ov', `{${options.filterTag}}`)
+    }
+
+    if (sort === 'trending') {
+      query = query.gte('created_at', getTrendingCutoff())
+    }
+
+    if (sort === 'recent') {
+      query = query.order('created_at', { ascending: false })
+    } else {
+      query = query
+        .order('likes_count', { ascending: false })
+        .order('created_at', { ascending: false })
+    }
+
+    const { data, error } = await query.range(from, to)
+
+    if (error) {
+      console.error('[SSR trips/getPublicTrips]', error)
+      return []
+    }
+
+    return (data ?? []).map(trip => ({
+      ...trip,
+      routes: normalizeRoutes(trip.routes),
+    })) as Trip[]
+  } catch (e) {
+    console.error('[SSR trips/getPublicTrips]', e)
+    return []
   }
-
-  if (sort === 'trending') {
-    query = query.gte('created_at', getTrendingCutoff())
-  }
-
-  if (sort === 'recent') {
-    query = query.order('created_at', { ascending: false })
-  } else {
-    query = query
-      .order('likes_count', { ascending: false })
-      .order('created_at', { ascending: false })
-  }
-
-  const { data, error } = await query.range(from, to)
-
-  if (error) {
-    console.error('[SSR trips/getPublicTrips]', error)
-    throw error
-  }
-
-  return (data ?? []).map(trip => ({
-    ...trip,
-    routes: normalizeRoutes(trip.routes),
-  })) as Trip[]
 }
 
 export async function getAvailableTripTags(): Promise<Set<string>> {
-  const supabase = createServerClient()
-  const { data, error } = await supabase
-    .from('trips')
-    .select('tags')
+  try {
+    const supabase = await createServerClient()
+    if (!supabase) return new Set()
 
-  if (error) {
-    console.error('[SSR trips/getAvailableTripTags]', error)
-    throw error
-  }
+    const { data, error } = await supabase
+      .from('trips')
+      .select('tags')
 
-  const result = new Set<string>()
-  for (const row of data ?? []) {
-    if (Array.isArray(row.tags)) {
-      row.tags.forEach(tag => result.add(tag))
+    if (error) {
+      console.error('[SSR trips/getAvailableTripTags]', error)
+      return new Set()
     }
-  }
 
-  return result
+    const result = new Set<string>()
+    for (const row of data ?? []) {
+      if (Array.isArray(row.tags)) {
+        row.tags.forEach(tag => result.add(tag))
+      }
+    }
+
+    return result
+  } catch (e) {
+    console.error('[SSR trips/getAvailableTripTags]', e)
+    return new Set()
+  }
 }
 
 // Viaje por slug — para /trips/[slug]
@@ -205,7 +219,9 @@ export async function getTripBySlug(slug: string): Promise<Trip | null> {
   const shortId = slug.split('-').at(-1)
   if (!shortId) return null
 
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
+  if (!supabase) return null
+
   const { data, error } = await supabase
     .from('routes')
     .select(routeSelect)
@@ -229,17 +245,23 @@ export async function getTripBySlug(slug: string): Promise<Trip | null> {
 
 // Total de viajes publicos — para sitemap
 export async function getPublicTripsCount(): Promise<number> {
-  const supabase = createServerClient()
+  try {
+    const supabase = await createServerClient()
+    if (!supabase) return 0
 
-  const { count, error } = await supabase
-    .from('trips')
-    .select('id, routes!inner(id, slug)', { count: 'exact', head: true })
-    .not('routes.slug', 'is', null)
+    const { count, error } = await supabase
+      .from('trips')
+      .select('id, routes!inner(id, slug)', { count: 'exact', head: true })
+      .not('routes.slug', 'is', null)
 
-  if (error) {
-    console.error('[SSR trips/getPublicTripsCount]', error)
-    throw error
+    if (error) {
+      console.error('[SSR trips/getPublicTripsCount]', error)
+      return 0
+    }
+
+    return count ?? 0
+  } catch (e) {
+    console.error('[SSR trips/getPublicTripsCount]', e)
+    return 0
   }
-
-  return count ?? 0
 }

@@ -733,16 +733,21 @@ function HeaderSection({
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params
-  const trip = await getTripBySlug(slug)
+  try {
+    const { slug } = await params
+    const trip = await getTripBySlug(slug)
 
-  if (!trip) return {}
+    if (!trip) return {}
 
-  const route = trip.routes[0]
+    const route = trip.routes[0]
 
-  return {
-    title: route.meta_title,
-    description: route.meta_description,
+    return {
+      title: route.meta_title,
+      description: route.meta_description,
+    }
+  } catch (err) {
+    console.error('[SSR /trips/[slug] generateMetadata]', err)
+    return { title: 'Trip — Tripverse' }
   }
 }
 
@@ -751,7 +756,25 @@ export default async function TripDetailPage({ params, searchParams }: PageProps
   const query = await searchParams
   const versionQuery = query?.version
 
-  const trip = await getTripBySlug(slug)
+  let trip: Trip | null = null
+  try {
+    trip = await getTripBySlug(slug)
+  } catch (err) {
+    console.error('[SSR /trips/[slug]] getTripBySlug', err)
+    return (
+      <main className="trips-page">
+        <div className="trips-shell trip-detail-error-shell">
+          <h1 className="trip-detail-title">Something went wrong</h1>
+          <p className="trip-detail-route-line">
+            We couldn&apos;t load this trip. It may be a temporary issue — try again in a moment.
+          </p>
+          <Button href="/trips" variant="secondary" size="lg">
+            Back to trips
+          </Button>
+        </div>
+      </main>
+    )
+  }
 
   if (!trip) notFound()
 
@@ -766,91 +789,108 @@ export default async function TripDetailPage({ params, searchParams }: PageProps
   const activeRoute = pickVersion<RouteVersion>(routeWrapper, versionQuery)
   if (!activeRoute) notFound()
 
-  const activeRationale = pickVersion<RationaleVersion>(rationaleWrapper, versionQuery) ?? {}
-  const activeCosts = pickVersion<CityVersionCosts>(costsWrapper, versionQuery) ?? {
-    cityBreakdowns: [],
-    totals: {},
-  }
-  const activeActivities = pickVersion<ActivitiesVersion>(activitiesWrapper, versionQuery) ?? { cities: [] }
+  try {
+    const activeRationale = pickVersion<RationaleVersion>(rationaleWrapper, versionQuery) ?? {}
+    const activeCosts = pickVersion<CityVersionCosts>(costsWrapper, versionQuery) ?? {
+      cityBreakdowns: [],
+      totals: {},
+    }
+    const activeActivities = pickVersion<ActivitiesVersion>(activitiesWrapper, versionQuery) ?? { cities: [] }
 
-  const narrative = extractTripNarrative(activeRationale as Record<string, unknown>, route.meta_data)
-  const financeVersion = pickVersion<Record<string, unknown>>(route.finance_data as unknown, versionQuery)
-  const totalsMerged = normalizeTotals(activeCosts.totals as Record<string, unknown> | undefined)
-  const financeExtras = normalizeFinanceExtras(financeVersion ?? undefined, route.meta_data)
+    const narrative = extractTripNarrative(activeRationale as Record<string, unknown>, route.meta_data)
+    const financeVersion = pickVersion<Record<string, unknown>>(route.finance_data as unknown, versionQuery)
+    const totalsMerged = normalizeTotals(activeCosts.totals as Record<string, unknown> | undefined)
+    const financeExtras = normalizeFinanceExtras(financeVersion ?? undefined, route.meta_data)
 
-  const mergedStyleTags = mergeStyleTagIds(trip.tags, route.meta_data)
-  const heroMetaChips = buildHeroMetaChips({
-    grandTotal: totalsMerged.grandTotal,
-    meta: route.meta_data,
-    segments: activeRoute.segments ?? [],
-    trip,
-  })
+    const mergedStyleTags = mergeStyleTagIds(trip.tags, route.meta_data)
+    const heroMetaChips = buildHeroMetaChips({
+      grandTotal: totalsMerged.grandTotal,
+      meta: route.meta_data,
+      segments: activeRoute.segments ?? [],
+      trip,
+    })
 
-  return (
-    <div className="trip-detail-page">
-      {/* Hero como la primera sección del home: superficie blanca, titular protagonista (sin segunda tarjeta blanca encima). */}
-      <section className="trip-detail-stripe trip-detail-stripe--marketing-hero">
-        <div className="trip-detail-landing-inner">
-          <div className="trip-detail-shell trip-detail-shell--hero">
-            <HeaderSection
-              activeRationale={activeRationale}
-              heroMetaChips={heroMetaChips}
-              mergedStyleTags={mergedStyleTags}
-              routeSegments={activeRoute.segments ?? []}
-              trip={trip}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Una sola franja gris con todas las tarjetas → mismo ritmo que `gap` entre cards (no falta contenido). */}
-      <section className="trip-detail-stripe">
-        <div className="trip-detail-landing-inner">
-          <TripGuideModalProvider>
-            <div className="trip-detail-shell">
-              <TripOverviewSection
+    return (
+      <div className="trip-detail-page">
+        {/* Hero como la primera sección del home: superficie blanca, titular protagonista (sin segunda tarjeta blanca encima). */}
+        <section className="trip-detail-stripe trip-detail-stripe--marketing-hero">
+          <div className="trip-detail-landing-inner">
+            <div className="trip-detail-shell trip-detail-shell--hero">
+              <HeaderSection
+                activeRationale={activeRationale}
+                heroMetaChips={heroMetaChips}
+                mergedStyleTags={mergedStyleTags}
+                routeSegments={activeRoute.segments ?? []}
                 trip={trip}
-                narrative={narrative}
-                cityHighlights={normalizeCityHighlights(activeRationale.cityHighlights)}
-              />
-              <RouteMapSection segments={activeRoute.segments} />
-              <TransportSection activeRoute={activeRoute} />
-              <WhereToStaySection activeActivities={activeActivities} />
-              <ActivitiesSection activeActivities={activeActivities} />
-              <CostBreakdownSection activeCosts={activeCosts} />
-              <RationaleSection activeRationale={activeRationale} />
-              <FinanceDocsSafetySection
-                costTotals={{
-                  accommodation: totalsMerged.accommodation,
-                  activities: totalsMerged.activities,
-                  food: totalsMerged.food,
-                  transport: totalsMerged.transport,
-                }}
-                extras={financeExtras}
               />
             </div>
-          </TripGuideModalProvider>
-        </div>
-      </section>
-
-      <section className="trip-detail-stripe trip-detail-stripe--cta-band" aria-labelledby="trip-detail-cta-heading">
-        <div className="trip-detail-landing-inner">
-          <div className="trip-detail-cta-landing">
-            <h2 id="trip-detail-cta-heading" className="trip-detail-cta-title">
-              Take this route with guides, maps & live costs
-            </h2>
-            <Button href="/#download" variant="secondary" size="lg">
-              Download on the App Store
-            </Button>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <div className="mobile-download-cta">
-        <Button href="/#download" variant="secondary" size="lg">
-          Download Tripverse
-        </Button>
+        {/* Una sola franja gris con todas las tarjetas → mismo ritmo que `gap` entre cards (no falta contenido). */}
+        <section className="trip-detail-stripe">
+          <div className="trip-detail-landing-inner">
+            <TripGuideModalProvider>
+              <div className="trip-detail-shell">
+                <TripOverviewSection
+                  trip={trip}
+                  narrative={narrative}
+                  cityHighlights={normalizeCityHighlights(activeRationale.cityHighlights)}
+                />
+                <RouteMapSection segments={activeRoute.segments} />
+                <TransportSection activeRoute={activeRoute} />
+                <WhereToStaySection activeActivities={activeActivities} />
+                <ActivitiesSection activeActivities={activeActivities} />
+                <CostBreakdownSection activeCosts={activeCosts} />
+                <RationaleSection activeRationale={activeRationale} />
+                <FinanceDocsSafetySection
+                  costTotals={{
+                    accommodation: totalsMerged.accommodation,
+                    activities: totalsMerged.activities,
+                    food: totalsMerged.food,
+                    transport: totalsMerged.transport,
+                  }}
+                  extras={financeExtras}
+                />
+              </div>
+            </TripGuideModalProvider>
+          </div>
+        </section>
+
+        <section className="trip-detail-stripe trip-detail-stripe--cta-band" aria-labelledby="trip-detail-cta-heading">
+          <div className="trip-detail-landing-inner">
+            <div className="trip-detail-cta-landing">
+              <h2 id="trip-detail-cta-heading" className="trip-detail-cta-title">
+                Take this route with guides, maps & live costs
+              </h2>
+              <Button href="/#download" variant="secondary" size="lg">
+                Download on the App Store
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        <div className="mobile-download-cta">
+          <Button href="/#download" variant="secondary" size="lg">
+            Download Tripverse
+          </Button>
+        </div>
       </div>
-    </div>
-  )
+    )
+  } catch (err) {
+    console.error('[SSR /trips/[slug]] render', err)
+    return (
+      <main className="trips-page">
+        <div className="trips-shell trip-detail-error-shell">
+          <h1 className="trip-detail-title">Something went wrong</h1>
+          <p className="trip-detail-route-line">
+            We couldn&apos;t load this trip. It may be a temporary issue — try again in a moment.
+          </p>
+          <Button href="/trips" variant="secondary" size="lg">
+            Back to trips
+          </Button>
+        </div>
+      </main>
+    )
+  }
 }

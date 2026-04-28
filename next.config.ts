@@ -13,7 +13,6 @@ const nextConfig: NextConfig = {
 
 export default nextConfig;
 
-// Enable calling `getCloudflareContext()` in `next dev`.
-// See https://opennext.js.org/cloudflare/bindings#local-access-to-bindings.
+/** Solo desarrollo local (`next dev`): expone bindings de Wrangler en Node. En build/Pages no sustituye el runtime del Worker. */
 import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 initOpenNextCloudflareForDev();

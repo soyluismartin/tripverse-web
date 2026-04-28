@@ -684,6 +684,22 @@ a {
 	text-align: center;
 }
 
+.trips-feed-warning {
+	align-self: center;
+	color: var(--color-muted);
+	font-size: 15px;
+	margin: 24px auto 0;
+	max-width: 40rem;
+	text-align: center;
+}
+
+.trip-detail-error-shell {
+	margin-inline: auto;
+	max-width: 28rem;
+	padding-block: clamp(48px, 10vw, 96px);
+	text-align: center;
+}
+
 /* ── Trip detail: ritmo vertical uniforme entre franjas y entre `.trip-detail-card` ── */
 
 body:has(.trip-detail-page) {

@@ -303,10 +303,23 @@ export default async function TripsPage({ searchParams }: TripsPageProps) {
   const params = await searchParams
   const sort = sortOptions.some(option => option.id === params?.sort) ? params?.sort as FeedSortOption : 'trending'
   const selectedTag = params?.tag ?? null
-  const [trips, availableTags] = await Promise.all([
-    getPublicTrips(0, 12, { sort, filterTag: selectedTag }),
-    getAvailableTripTags(),
-  ])
+
+  let trips: Trip[] = []
+  let availableTags = new Set<string>()
+  let feedLoadFailed = false
+
+  try {
+    const [t, tags] = await Promise.all([
+      getPublicTrips(0, 12, { sort, filterTag: selectedTag }),
+      getAvailableTripTags(),
+    ])
+    trips = t
+    availableTags = tags
+  } catch (e) {
+    console.error('[TripsPage] feed load', e)
+    feedLoadFailed = true
+  }
+
   const currentSort = sortOptions.find(option => option.id === sort) ?? sortOptions[0]
   const filterOptions = allTagOptions.filter(option => availableTags.has(option.id))
 
@@ -317,6 +330,12 @@ export default async function TripsPage({ searchParams }: TripsPageProps) {
           <h1>Discover</h1>
           <p>Explore the best trips shared by travelers like you.</p>
         </header>
+
+        {feedLoadFailed ? (
+          <p className="trips-feed-warning" role="status">
+            No pudimos cargar el listado desde el servidor. Intenta recargar la página en unos minutos.
+          </p>
+        ) : null}
 
         <div className="trips-filter-bar" aria-label="Trip filters">
           <details className="trips-sort-menu">
